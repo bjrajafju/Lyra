@@ -1,0 +1,12 @@
+# Node / back-end
+backend/node_modules/
+backend/.env
+backend/uploads/
+backend/storage/
+
+# Front-end (se um dia usarem build tools)
+frontend/node_modules/
+
+# Sistema
+.DS_Store
+*.log
