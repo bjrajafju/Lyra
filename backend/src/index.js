@@ -1,5 +1,5 @@
 import express from "express";
-import pool from "./config/db.js";
+import pool from "./services/db.js";
 
 const app = express();
 app.use(express.json());
