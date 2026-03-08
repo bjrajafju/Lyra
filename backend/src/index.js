@@ -1,22 +1,43 @@
-import express from "express";
-import pool from "./services/db.js";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './routes/authRoutes.js';
+import bandRoutes from './routes/bandRoutes.js';
+import songRoutes from './routes/songRoutes.js';
+import interactionRoutes from './routes/interactionRoutes.js';
+import playlistRoutes from './routes/playlistRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
+import albumRoutes from './routes/albumRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
+
+dotenv.config();
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-app.get("/db-test", async (req, res) => {
-    try {
-        const result = await pool.query("SELECT NOW()");
-        res.json({
-            status: "ok",
-            time: result.rows[0],
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "DB connection failed" });
-    }
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files for audio and images
+app.use('/uploads', express.static('uploads'));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/bands', bandRoutes);
+app.use('/api/songs', songRoutes);
+app.use('/api/interactions', interactionRoutes);
+app.use('/api/playlists', playlistRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/albums', albumRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Lyra API is running' });
 });
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

@@ -1,0 +1,87 @@
+import { query } from '../db/index.js';
+import { verifyToken } from '../utils/jwt.js';
+
+export const uploadSong = async (req, res) => {
+    try {
+        const { band_id, album_id, title, description, duration, release_date, genre, visibility, tags } = req.body;
+        const uploaded_by = req.user.id;
+
+        const memberCheck = await query('SELECT * FROM band_members WHERE band_id = $1 AND user_id = $2', [band_id, uploaded_by]);
+        if (memberCheck.rows.length === 0) {
+            return res.status(403).json({ message: 'You are not a member of this band' });
+        }
+
+        if (!req.files || !req.files.audio) {
+            return res.status(400).json({ message: 'Audio file is required' });
+        }
+
+        const audio_url = `/uploads/audio/${req.files.audio[0].filename}`;
+        let cover_image = null;
+        if (req.files.cover_image) {
+            cover_image = `/uploads/images/${req.files.cover_image[0].filename}`;
+        }
+
+        const newSong = await query(
+            `INSERT INTO songs 
+            (band_id, album_id, uploaded_by, title, description, audio_url, cover_image, duration, release_date, genre, visibility, tags) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+            [band_id, album_id || null, uploaded_by, title, description, audio_url, cover_image, duration, release_date || null, genre, visibility || 'public', JSON.stringify(tags || [])]
+        );
+
+        res.status(201).json(newSong.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error uploading song' });
+    }
+};
+
+export const getSongs = async (req, res) => {
+    const { page = 1, limit = 20, band_id } = req.query;
+    const offset = (page - 1) * limit;
+
+    try {
+        let result;
+        if (band_id) {
+            result = await query('SELECT s.*, b.name as band_name FROM songs s JOIN bands b ON s.band_id = b.id WHERE s.band_id = $1 AND visibility = $2 ORDER BY s.created_at DESC LIMIT $3 OFFSET $4', [band_id, 'public', limit, offset]);
+        } else {
+            result = await query('SELECT s.*, b.name as band_name FROM songs s JOIN bands b ON s.band_id = b.id WHERE visibility = $1 ORDER BY s.created_at DESC LIMIT $2 OFFSET $3', ['public', limit, offset]);
+        }
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error fetching songs' });
+    }
+};
+
+export const playSong = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await query('UPDATE songs SET play_count = play_count + 1 WHERE id = $1', [id]);
+        
+        let user_id = null;
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            try {
+                // Optional decode to track user history
+                const token = req.headers.authorization.split(' ')[1];
+                const decoded = verifyToken(token);
+                user_id = decoded.id;
+            } catch (err) {}
+        }
+        
+        await query('INSERT INTO streams (song_id, user_id) VALUES ($1, $2)', [id, user_id]);
+        
+        if (user_id) {
+            await query('INSERT INTO listening_history (user_id, song_id) VALUES ($1, $2)', [user_id, id]);
+        }
+
+        const result = await query('SELECT s.*, b.name as band_name FROM songs s JOIN bands b ON s.band_id = b.id WHERE s.id = $1', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Song not found' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error playing song' });
+    }
+};
