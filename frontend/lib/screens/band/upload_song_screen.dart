@@ -20,12 +20,12 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   bool isUploading = false;
 
   Future<void> pickAudio() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.audio);
+    final result = await FilePicker.platform.pickFiles(type: FileType.audio, withData: true);
     if (result != null) setState(() => audioFile = result.files.first);
   }
 
   Future<void> pickCover() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
     if (result != null) setState(() => coverFile = result.files.first);
   }
 
@@ -49,11 +49,20 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
       request.fields['genre'] = genreController.text;
       request.fields['duration'] = '180'; // Mock duration
       
-      if (audioFile!.path != null) {
-        request.files.add(await http.MultipartFile.fromPath('audio', audioFile!.path!));
+      if (audioFile != null) {
+        if (audioFile!.bytes != null) {
+          request.files.add(http.MultipartFile.fromBytes('audio', audioFile!.bytes!, filename: audioFile!.name));
+        } else if (audioFile!.path != null) {
+          request.files.add(await http.MultipartFile.fromPath('audio', audioFile!.path!));
+        }
       }
-      if (coverFile?.path != null) {
-        request.files.add(await http.MultipartFile.fromPath('cover_image', coverFile!.path!));
+      
+      if (coverFile != null) {
+        if (coverFile!.bytes != null) {
+          request.files.add(http.MultipartFile.fromBytes('cover_image', coverFile!.bytes!, filename: coverFile!.name));
+        } else if (coverFile!.path != null) {
+          request.files.add(await http.MultipartFile.fromPath('cover_image', coverFile!.path!));
+        }
       }
 
       var response = await request.send();
@@ -63,7 +72,8 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
           Navigator.pop(context);
         }
       } else {
-        throw Exception('Upload failed ${response.statusCode}');
+        final respStr = await response.stream.bytesToString();
+        throw Exception('Upload failed ${response.statusCode}: $respStr');
       }
     } catch (e) {
       print(e);

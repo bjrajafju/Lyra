@@ -12,7 +12,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     try {
-      final res = await ApiService.post('/auth/login', {
+      final res = await ApiService.postWithoutAuth('/auth/login', {
         'email': email,
         'password': password,
       });
@@ -20,22 +20,29 @@ class AuthProvider with ChangeNotifier {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         _user = User.fromJson(data);
-        
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _user!.token);
         notifyListeners();
         return true;
+      } else {
+        print('[LOGIN] Status code não é 200');
       }
       return false;
     } catch (e) {
-      print(e);
+      print('[LOGIN] ERRO: $e');
       return false;
     }
   }
 
-  Future<bool> register(String username, String email, String password, String role) async {
+  Future<bool> register(
+    String username,
+    String email,
+    String password,
+    String role,
+  ) async {
     try {
-      final res = await ApiService.post('/auth/register', {
+      final res = await ApiService.postWithoutAuth('/auth/register', {
         'username': username,
         'email': email,
         'password': password,
@@ -45,15 +52,18 @@ class AuthProvider with ChangeNotifier {
       if (res.statusCode == 201) {
         final data = jsonDecode(res.body);
         _user = User.fromJson(data);
-        
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _user!.token);
+
         notifyListeners();
         return true;
+      } else {
+        print('[REGISTER] Status code não é 201');
       }
       return false;
     } catch (e) {
-      print(e);
+      print('[REGISTER] ERRO: $e');
       return false;
     }
   }
@@ -73,7 +83,9 @@ class AuthProvider with ChangeNotifier {
       final res = await ApiService.get('/auth/profile');
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        data['token'] = prefs.getString('token'); // inject current token locally
+        data['token'] = prefs.getString(
+          'token',
+        ); // inject current token locally
         _user = User.fromJson(data);
         notifyListeners();
       } else {

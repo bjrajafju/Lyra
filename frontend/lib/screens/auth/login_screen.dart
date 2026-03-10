@@ -15,11 +15,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   void handleLogin() async {
-    setState(() { isLoading = true; });
-    bool right = await context.read<AuthProvider>().login(emailController.text, passwordController.text);
-    setState(() { isLoading = false; });
+    setState(() {
+      isLoading = true;
+    });
+    bool right = await context.read<AuthProvider>().login(
+      emailController.text,
+      passwordController.text,
+    );
+    setState(() {
+      isLoading = false;
+    });
     if (!right && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login failed')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login failed')));
     }
   }
 
@@ -32,32 +41,47 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Lyra', style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Color(0xFF1DB954))),
+              const Text(
+                'Lyra',
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1DB954),
+                ),
+              ),
               const SizedBox(height: 40),
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 24),
-              isLoading 
-                ? const CircularProgressIndicator() 
-                : ElevatedButton(
-                    onPressed: handleLogin, 
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                    child: const Text('Login'),
-                  ),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: handleLogin,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                      ),
+                      child: const Text('Login'),
+                    ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/register'),
                 child: const Text("Don't have an account? Register"),
-              )
+              ),
             ],
           ),
         ),

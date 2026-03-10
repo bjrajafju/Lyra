@@ -29,14 +29,16 @@ const storage = multer.diskStorage({
 });
 
 const checkFileType = (file, cb) => {
-    const filetypes = /jpeg|jpg|png|mp3|wav|ogg/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+    // For file extension
+    const extname = /jpeg|jpg|png|mp3|wav|ogg|m4a|aac/.test(path.extname(file.originalname).toLowerCase());
+    
+    // For MIME type (Flutter web bytes often send application/octet-stream, standard audio is often audio/mpeg)
+    const mimetype = /jpeg|jpg|png|mpeg|mp3|wav|ogg|audio|image|octet-stream/.test(file.mimetype);
 
     if (extname && mimetype) {
         return cb(null, true);
     } else {
-        cb(new Error('Images and Audio files only!'));
+        cb(new Error(`Images and Audio files only! Uploaded mimetype: ${file.mimetype}`));
     }
 };
 

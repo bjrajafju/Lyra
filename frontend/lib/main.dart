@@ -18,8 +18,21 @@ void main() {
   );
 }
 
-class LyraApp extends StatelessWidget {
+class LyraApp extends StatefulWidget {
   const LyraApp({super.key});
+
+  @override
+  State<LyraApp> createState() => _LyraAppState();
+}
+
+class _LyraAppState extends State<LyraApp> {
+  late Future<void> _autoLoginFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _autoLoginFuture = Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +47,14 @@ class LyraApp extends StatelessWidget {
           secondary: Color(0xFF535353),
         ),
       ),
-      home: Consumer<AuthProvider>(
-        builder: (context, auth, _) {
-          return FutureBuilder(
-            future: auth.tryAutoLogin(),
-            builder: (ctx, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(body: Center(child: CircularProgressIndicator()));
-              }
+      home: FutureBuilder(
+        future: _autoLoginFuture,
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          return Consumer<AuthProvider>(
+            builder: (context, auth, _) {
               if (auth.isAuthenticated) {
                 return const MainScreen();
               }
