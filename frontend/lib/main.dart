@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/audio_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
 import 'screens/home/main_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -24,6 +25,9 @@ class LyraApp extends StatelessWidget {
         title: 'Lyra — Music Discovery',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
+        routes: {
+          '/register': (context) => const RegisterScreen(),
+        },
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             // Auto login check

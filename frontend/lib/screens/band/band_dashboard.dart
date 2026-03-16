@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/band_model.dart';
 import '../../services/api_service.dart';
-import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import 'upload_song_screen.dart';
+import 'create_band_screen.dart';
 
 class BandDashboard extends StatefulWidget {
   const BandDashboard({super.key});
@@ -93,11 +92,15 @@ class _BandDashboardState extends State<BandDashboard> {
                   const Text('Create a band to start uploading music', style: TextStyle(color: AppTheme.textMuted)),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      // Would navigate to create band screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Create band via API')),
+                    onPressed: () async {
+                      final created = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CreateBandScreen()),
                       );
+                      if (created == true) {
+                        setState(() => isLoading = true);
+                        _loadBands();
+                      }
                     },
                     child: const Text('Create Band'),
                   ),

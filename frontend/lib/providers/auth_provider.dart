@@ -78,23 +78,27 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('token')) return;
-
     try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey('token')) {
+        _hasCheckedAuth = true;
+        notifyListeners();
+        return;
+      }
+
       final res = await ApiService.get('/auth/profile');
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        data['token'] = prefs.getString(
-          'token',
-        ); // inject current token locally
+        data['token'] = prefs.getString('token'); // inject current token locally
         _user = User.fromJson(data);
-        notifyListeners();
       } else {
         await logout();
       }
     } catch (e) {
       print(e);
+    } finally {
+      _hasCheckedAuth = true;
+      notifyListeners();
     }
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/playlist_model.dart';
-import '../../models/song_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/audio_provider.dart';
 import '../../providers/auth_provider.dart';
