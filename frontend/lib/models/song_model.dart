@@ -4,6 +4,14 @@ class Song {
   final String audioUrl;
   final String? coverImage;
   final String? bandName;
+  final int? bandId;
+  final int? albumId;
+  final String? genre;
+  final String? description;
+  final int playCount;
+  final int duration;
+  final int likeCount;
+  final String? releaseDate;
 
   Song({
     required this.id,
@@ -11,15 +19,31 @@ class Song {
     required this.audioUrl,
     this.coverImage,
     this.bandName,
+    this.bandId,
+    this.albumId,
+    this.genre,
+    this.description,
+    this.playCount = 0,
+    this.duration = 0,
+    this.likeCount = 0,
+    this.releaseDate,
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
     return Song(
       id: json['id'],
-      title: json['title'],
-      audioUrl: json['audio_url'],
+      title: json['title'] ?? '',
+      audioUrl: json['audio_url'] ?? '',
       coverImage: json['cover_image'],
       bandName: json['band_name'],
+      bandId: json['band_id'],
+      albumId: json['album_id'],
+      genre: json['genre'],
+      description: json['description'],
+      playCount: json['play_count'] ?? 0,
+      duration: json['duration'] ?? 0,
+      likeCount: int.tryParse('${json['like_count'] ?? 0}') ?? 0,
+      releaseDate: json['release_date'],
     );
   }
 }

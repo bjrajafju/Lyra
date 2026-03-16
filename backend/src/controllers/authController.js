@@ -31,7 +31,6 @@ export const registerUser = async (req, res) => {
             role: user.role,
             token,
         });
-        console.log("passou do response"); // passa
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
@@ -61,6 +60,8 @@ export const loginUser = async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
+            profile_picture: user.profile_picture,
+            bio: user.bio,
             token,
         });
     } catch (error) {
@@ -72,7 +73,7 @@ export const loginUser = async (req, res) => {
 export const getUserProfile = async (req, res) => {
     try {
         const result = await query(
-            "SELECT id, username, email, profile_picture, bio, role FROM users WHERE id = $1",
+            "SELECT id, username, email, profile_picture, bio, role, created_at FROM users WHERE id = $1",
             [req.user.id],
         );
         if (result.rows.length === 0) {
@@ -82,5 +83,90 @@ export const getUserProfile = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const getUserById = async (req, res) => {
+    try {
+        const result = await query(
+            "SELECT id, username, email, profile_picture, bio, role, created_at FROM users WHERE id = $1",
+            [req.params.id],
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const user = result.rows[0];
+
+        // Get follower count
+        const followers = await query(
+            "SELECT COUNT(*) FROM user_follows WHERE followed_user_id = $1",
+            [req.params.id],
+        );
+        user.follower_count = parseInt(followers.rows[0].count);
+
+        // Get following count
+        const following = await query(
+            "SELECT COUNT(*) FROM user_follows WHERE follower_id = $1",
+            [req.params.id],
+        );
+        user.following_count = parseInt(following.rows[0].count);
+
+        res.json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    const { username, bio } = req.body;
+    const userId = req.user.id;
+    try {
+        let profile_picture = null;
+        if (req.files && req.files.profile_picture) {
+            profile_picture = `/uploads/images/${req.files.profile_picture[0].filename}`;
+        }
+
+        let updateFields = [];
+        let values = [];
+        let paramIndex = 1;
+
+        if (username) {
+            updateFields.push(`username = $${paramIndex++}`);
+            values.push(username);
+        }
+        if (bio !== undefined) {
+            updateFields.push(`bio = $${paramIndex++}`);
+            values.push(bio);
+        }
+        if (profile_picture) {
+            updateFields.push(`profile_picture = $${paramIndex++}`);
+            values.push(profile_picture);
+        }
+
+        if (updateFields.length === 0) {
+            return res.status(400).json({ message: "No fields to update" });
+        }
+
+        values.push(userId);
+        const result = await query(
+            `UPDATE users SET ${updateFields.join(", ")} WHERE id = $${paramIndex} RETURNING id, username, email, profile_picture, bio, role`,
+            values,
+        );
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error updating profile" });
+    }
+};
+
+export const deleteAccount = async (req, res) => {
+    try {
+        await query("DELETE FROM users WHERE id = $1", [req.user.id]);
+        res.json({ message: "Account deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error deleting account" });
     }
 };

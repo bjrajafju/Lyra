@@ -6,9 +6,11 @@ import '../services/api_service.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
+  bool _hasCheckedAuth = false;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
+  bool get hasCheckedAuth => _hasCheckedAuth;
 
   Future<bool> login(String email, String password) async {
     try {

@@ -22,7 +22,12 @@ export const createPlaylist = async (req, res) => {
 
 export const getPlaylists = async (req, res) => {
     try {
-        const result = await query('SELECT p.*, u.username as creator_name FROM playlists p JOIN users u ON p.creator_id = u.id WHERE is_public = true ORDER BY created_at DESC LIMIT 20');
+        const result = await query(`
+            SELECT p.*, u.username as creator_name,
+            (SELECT COUNT(*) FROM playlist_songs WHERE playlist_id = p.id) as song_count
+            FROM playlists p JOIN users u ON p.creator_id = u.id 
+            WHERE is_public = true ORDER BY created_at DESC LIMIT 20
+        `);
         res.json(result.rows);
     } catch (error) {
         console.error(error);
@@ -30,21 +35,34 @@ export const getPlaylists = async (req, res) => {
     }
 };
 
+export const getUserPlaylists = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const result = await query(`
+            SELECT p.*, u.username as creator_name,
+            (SELECT COUNT(*) FROM playlist_songs WHERE playlist_id = p.id) as song_count
+            FROM playlists p JOIN users u ON p.creator_id = u.id 
+            WHERE p.creator_id = $1 ORDER BY p.created_at DESC
+        `, [userId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 export const addSongToPlaylist = async (req, res) => {
     const { playlist_id, song_id } = req.body;
     const user_id = req.user.id;
     try {
-        // Verify playlist ownership
         const playlist = await query('SELECT * FROM playlists WHERE id = $1 AND creator_id = $2', [playlist_id, user_id]);
         if (playlist.rows.length === 0) {
             return res.status(403).json({ message: 'Not authorized to modify this playlist' });
         }
         
-        // Get max position
         const posResult = await query('SELECT COALESCE(MAX(position), 0) + 1 as next_pos FROM playlist_songs WHERE playlist_id = $1', [playlist_id]);
         const next_pos = posResult.rows[0].next_pos;
 
-        // Add
         await query(
             'INSERT INTO playlist_songs (playlist_id, song_id, position) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
             [playlist_id, song_id, next_pos]
@@ -53,6 +71,22 @@ export const addSongToPlaylist = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error modifying playlist' });
+    }
+};
+
+export const removeSongFromPlaylist = async (req, res) => {
+    const { id, songId } = req.params;
+    const user_id = req.user.id;
+    try {
+        const playlist = await query('SELECT * FROM playlists WHERE id = $1 AND creator_id = $2', [id, user_id]);
+        if (playlist.rows.length === 0) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+        await query('DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2', [id, songId]);
+        res.json({ message: 'Song removed from playlist' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -67,7 +101,8 @@ export const getPlaylistById = async (req, res) => {
         }
 
         const songs = await query(`
-            SELECT ps.position, s.*, b.name as band_name 
+            SELECT ps.position, s.*, b.name as band_name,
+            (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
             FROM playlist_songs ps 
             JOIN songs s ON ps.song_id = s.id 
             JOIN bands b ON s.band_id = b.id
@@ -77,6 +112,56 @@ export const getPlaylistById = async (req, res) => {
         
         playlist.songs = songs.rows;
         res.json(playlist);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const updatePlaylist = async (req, res) => {
+    const { title, description, is_public } = req.body;
+    const playlistId = req.params.id;
+    const userId = req.user.id;
+    try {
+        const playlist = await query('SELECT * FROM playlists WHERE id = $1 AND creator_id = $2', [playlistId, userId]);
+        if (playlist.rows.length === 0) return res.status(403).json({ message: 'Not authorized' });
+
+        let updateFields = [];
+        let values = [];
+        let paramIndex = 1;
+
+        if (title) { updateFields.push(`title = $${paramIndex++}`); values.push(title); }
+        if (description !== undefined) { updateFields.push(`description = $${paramIndex++}`); values.push(description); }
+        if (is_public !== undefined) { updateFields.push(`is_public = $${paramIndex++}`); values.push(is_public); }
+        
+        if (req.files && req.files.cover_image) {
+            updateFields.push(`cover_image = $${paramIndex++}`);
+            values.push(`/uploads/images/${req.files.cover_image[0].filename}`);
+        }
+
+        if (updateFields.length === 0) return res.status(400).json({ message: 'No fields to update' });
+
+        values.push(playlistId);
+        const result = await query(
+            `UPDATE playlists SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+            values
+        );
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const deletePlaylist = async (req, res) => {
+    const playlistId = req.params.id;
+    const userId = req.user.id;
+    try {
+        const playlist = await query('SELECT * FROM playlists WHERE id = $1 AND creator_id = $2', [playlistId, userId]);
+        if (playlist.rows.length === 0) return res.status(403).json({ message: 'Not authorized' });
+
+        await query('DELETE FROM playlists WHERE id = $1', [playlistId]);
+        res.json({ message: 'Playlist deleted' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

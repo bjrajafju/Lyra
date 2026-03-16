@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../models/song_model.dart';
+import '../../models/band_model.dart';
 import '../../services/api_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
+import '../../widgets/band_card.dart';
+import '../band/band_profile_screen.dart';
 
 class DiscoveryTab extends StatefulWidget {
   const DiscoveryTab({super.key});
@@ -13,6 +17,8 @@ class DiscoveryTab extends StatefulWidget {
 
 class _DiscoveryTabState extends State<DiscoveryTab> {
   List<Song> trending = [];
+  List<Song> newReleases = [];
+  List<Band> bands = [];
   bool isLoading = true;
 
   @override
@@ -24,31 +30,94 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
   void fetchDiscovery() async {
     try {
       final res = await ApiService.get('/search/discovery');
+      final bandsRes = await ApiService.get('/bands');
+
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        setState(() {
-          trending = (data['trending'] as List).map((e) => Song.fromJson(e)).toList();
-          isLoading = false;
-        });
+        trending = (data['trending'] as List).map((e) => Song.fromJson(e)).toList();
+        newReleases = (data['newReleases'] as List).map((e) => Song.fromJson(e)).toList();
+      }
+      if (bandsRes.statusCode == 200) {
+        bands = (jsonDecode(bandsRes.body) as List).map((b) => Band.fromJson(b)).toList();
       }
     } catch (e) {
-      print(e);
-      setState(() => isLoading = false);
+      debugPrint('Discovery error: $e');
     }
+    if (mounted) setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) return const Center(child: CircularProgressIndicator());
-    
-    return ListView(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Trending Now', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        ),
-        ...trending.map((song) => SongCard(song: song)),
-      ],
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() => isLoading = true);
+        fetchDiscovery();
+      },
+      child: ListView(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Text('Discover', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+
+          // Trending section
+          if (trending.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+              child: Text('🔥 Trending Now', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            ...trending.map((song) => SongCard(song: song)),
+          ],
+
+          // Artists section
+          if (bands.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
+              child: Text('Artists For You', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            SizedBox(
+              height: 190,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 20),
+                itemCount: bands.length,
+                itemBuilder: (ctx, i) => BandCard(
+                  band: bands[i],
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => BandProfileScreen(bandId: bands[i].id))),
+                ),
+              ),
+            ),
+          ],
+
+          // New releases section
+          if (newReleases.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+              child: Text('✨ New Releases', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            ...newReleases.map((song) => SongCard(song: song)),
+          ],
+
+          const SizedBox(height: 80),
+        ],
+      ),
     );
   }
 }
