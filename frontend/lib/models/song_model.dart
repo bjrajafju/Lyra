@@ -11,6 +11,7 @@ class Song {
   final int playCount;
   final int duration;
   final int likeCount;
+  final int playlistAdditions;
   final String? releaseDate;
 
   Song({
@@ -26,6 +27,7 @@ class Song {
     this.playCount = 0,
     this.duration = 0,
     this.likeCount = 0,
+    this.playlistAdditions = 0,
     this.releaseDate,
   });
 
@@ -43,6 +45,7 @@ class Song {
       playCount: json['play_count'] ?? 0,
       duration: json['duration'] ?? 0,
       likeCount: int.tryParse('${json['like_count'] ?? 0}') ?? 0,
+      playlistAdditions: int.tryParse('${json['playlist_additions'] ?? json['playlist_count'] ?? 0}') ?? 0,
       releaseDate: json['release_date'],
     );
   }

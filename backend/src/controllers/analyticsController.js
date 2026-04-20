@@ -51,6 +51,51 @@ export const getBandAnalytics = async (req, res) => {
             WHERE band_id = $1 AND created_at > NOW() - INTERVAL '30 days'
         `, [band_id]);
 
+        const streamsOverTime = await query(`
+            SELECT DATE_TRUNC('day', st.played_at) AS day, COUNT(*)::int AS stream_count
+            FROM streams st
+            JOIN songs s ON st.song_id = s.id
+            WHERE s.band_id = $1 AND st.played_at > NOW() - INTERVAL '30 days'
+            GROUP BY day
+            ORDER BY day ASC
+        `, [band_id]);
+
+        const listenersPerMonth = await query(`
+            SELECT DATE_TRUNC('month', st.played_at) AS month, COUNT(DISTINCT st.user_id)::int AS listeners
+            FROM streams st
+            JOIN songs s ON st.song_id = s.id
+            WHERE s.band_id = $1 AND st.user_id IS NOT NULL AND st.played_at > NOW() - INTERVAL '12 months'
+            GROUP BY month
+            ORDER BY month ASC
+        `, [band_id]);
+
+        const followerGrowth = await query(`
+            SELECT DATE_TRUNC('month', bf.created_at) AS month, COUNT(*)::int AS followers
+            FROM band_follows bf
+            WHERE bf.band_id = $1 AND bf.created_at > NOW() - INTERVAL '12 months'
+            GROUP BY month
+            ORDER BY month ASC
+        `, [band_id]);
+
+        const recentActivity = await query(`
+            SELECT 'stream'::text AS type, st.played_at AS created_at, s.title AS song_title
+            FROM streams st
+            JOIN songs s ON st.song_id = s.id
+            WHERE s.band_id = $1
+            UNION ALL
+            SELECT 'playlist_add'::text AS type, ps.added_at AS created_at, s.title AS song_title
+            FROM playlist_songs ps
+            JOIN songs s ON ps.song_id = s.id
+            WHERE s.band_id = $1
+            UNION ALL
+            SELECT 'like'::text AS type, l.created_at AS created_at, s.title AS song_title
+            FROM likes l
+            JOIN songs s ON l.song_id = s.id
+            WHERE s.band_id = $1
+            ORDER BY created_at DESC
+            LIMIT 20
+        `, [band_id]);
+
         res.json({
             total_streams: bandInfo.rows[0]?.total_streams || 0,
             total_likes: parseInt(likes.rows[0].count),
@@ -59,7 +104,11 @@ export const getBandAnalytics = async (req, res) => {
             recent_streams: parseInt(recentStreams.rows[0].count),
             playlist_additions: parseInt(playlistAdds.rows[0].count),
             new_followers_30d: parseInt(newFollowers.rows[0].count),
-            top_songs: topSongs.rows
+            top_songs: topSongs.rows,
+            streams_over_time: streamsOverTime.rows,
+            listeners_per_month: listenersPerMonth.rows,
+            follower_growth: followerGrowth.rows,
+            recent_activity: recentActivity.rows
         });
     } catch (error) {
         console.error(error);

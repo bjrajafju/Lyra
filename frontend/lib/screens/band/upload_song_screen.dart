@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
-import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/api_service.dart';
 
 class UploadSongScreen extends StatefulWidget {
   final int? bandId;
@@ -17,9 +15,12 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   final titleController = TextEditingController();
   final genreController = TextEditingController();
   final descController = TextEditingController();
+  final tagsController = TextEditingController();
+  final releaseDateController = TextEditingController();
   PlatformFile? audioFile;
   PlatformFile? coverFile;
   bool isUploading = false;
+  String visibility = 'public';
 
   Future<void> pickAudio() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.audio, withData: true);
@@ -36,46 +37,48 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Audio and Title are required')));
       return;
     }
+    if (widget.bandId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select a band first')));
+      return;
+    }
 
     setState(() => isUploading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      var request = http.MultipartRequest('POST', Uri.parse('${Constants.baseUrl}/songs'));
-      request.headers['Authorization'] = 'Bearer $token';
-
-      request.fields['band_id'] = '${widget.bandId ?? 1}';
-      request.fields['title'] = titleController.text;
-      request.fields['genre'] = genreController.text;
-      request.fields['description'] = descController.text;
-      request.fields['duration'] = '180';
-
-      if (audioFile != null) {
-        if (audioFile!.bytes != null) {
-          request.files.add(http.MultipartFile.fromBytes('audio', audioFile!.bytes!, filename: audioFile!.name));
-        } else if (audioFile!.path != null) {
-          request.files.add(await http.MultipartFile.fromPath('audio', audioFile!.path!));
-        }
-      }
-
-      if (coverFile != null) {
-        if (coverFile!.bytes != null) {
-          request.files.add(http.MultipartFile.fromBytes('cover_image', coverFile!.bytes!, filename: coverFile!.name));
-        } else if (coverFile!.path != null) {
-          request.files.add(await http.MultipartFile.fromPath('cover_image', coverFile!.path!));
-        }
-      }
-
-      var response = await request.send();
+      final response = await ApiService.multipartRequest(
+        method: 'POST',
+        endpoint: '/songs',
+        fields: {
+          'band_id': '${widget.bandId}',
+          'title': titleController.text.trim(),
+          'genre': genreController.text.trim(),
+          'description': descController.text.trim(),
+          'duration': '180',
+          'visibility': visibility,
+          if (releaseDateController.text.trim().isNotEmpty) 'release_date': releaseDateController.text.trim(),
+          if (tagsController.text.trim().isNotEmpty) 'tags': tagsController.text.trim(),
+        },
+        files: {
+          if (audioFile != null)
+            'audio': MultipartFileData(
+              bytes: audioFile!.bytes,
+              path: audioFile!.path,
+              filename: audioFile!.name,
+            ),
+          if (coverFile != null)
+            'cover_image': MultipartFileData(
+              bytes: coverFile!.bytes,
+              path: coverFile!.path,
+              filename: coverFile!.name,
+            ),
+        },
+      );
       if (response.statusCode == 201) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload successful!')));
-          Navigator.pop(context);
+          Navigator.pop(context, true);
         }
       } else {
-        final respStr = await response.stream.bytesToString();
-        throw Exception('Upload failed ${response.statusCode}: $respStr');
+        throw Exception('Upload failed ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('$e');
@@ -108,6 +111,29 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
               controller: descController,
               decoration: const InputDecoration(labelText: 'Description (optional)', prefixIcon: Icon(Icons.description)),
               maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: tagsController,
+              decoration: const InputDecoration(labelText: 'Tags (comma separated)', prefixIcon: Icon(Icons.tag)),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: releaseDateController,
+              decoration: const InputDecoration(labelText: 'Release date (YYYY-MM-DD)', prefixIcon: Icon(Icons.date_range)),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              initialValue: visibility,
+              onChanged: (value) {
+                if (value != null) setState(() => visibility = value);
+              },
+              items: const [
+                DropdownMenuItem(value: 'public', child: Text('Public')),
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'unlisted', child: Text('Unlisted')),
+              ],
+              decoration: const InputDecoration(labelText: 'Visibility'),
             ),
             const SizedBox(height: 24),
             // Audio picker

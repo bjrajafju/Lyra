@@ -161,3 +161,9 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_songs_band_created_at ON songs(band_id, created_at DESC);
+CREATE INDEX idx_songs_visibility_created_at ON songs(visibility, created_at DESC);
+CREATE INDEX idx_playlist_songs_playlist_position ON playlist_songs(playlist_id, position);
+CREATE INDEX idx_streams_song_played_at ON streams(song_id, played_at DESC);
+CREATE INDEX idx_band_follows_band_created_at ON band_follows(band_id, created_at DESC);

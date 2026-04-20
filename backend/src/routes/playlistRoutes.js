@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPlaylist, getPlaylists, getUserPlaylists, addSongToPlaylist, removeSongFromPlaylist, getPlaylistById, updatePlaylist, deletePlaylist } from '../controllers/playlistController.js';
+import { createPlaylist, getPlaylists, getUserPlaylists, addSongToPlaylist, removeSongFromPlaylist, getPlaylistById, updatePlaylist, deletePlaylist, reorderPlaylistSongs, getPlaylistShareInfo } from '../controllers/playlistController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
 import { verifyToken } from '../utils/jwt.js';
@@ -23,7 +23,9 @@ router.route('/')
     .get(getPlaylists)
     .post(protect, upload.fields([{ name: 'cover_image', maxCount: 1 }]), createPlaylist);
 
-router.post('/add-song', protect, addSongToPlaylist);
+router.post('/:id/songs', protect, addSongToPlaylist);
+router.put('/:id/songs/reorder', protect, reorderPlaylistSongs);
+router.get('/:id/share', getPlaylistShareInfo);
 
 router.route('/:id')
     .get(optionalAuth, getPlaylistById)

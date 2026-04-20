@@ -47,8 +47,13 @@ export const uploadSong = async (req, res) => {
 };
 
 export const getSongs = async (req, res) => {
-    const { page = 1, limit = 20, band_id } = req.query;
-    const offset = (page - 1) * limit;
+    const { page = 1, limit = 20, band_id, sort = 'recent' } = req.query;
+    const parsedPage = Number.parseInt(page, 10);
+    const parsedLimit = Number.parseInt(limit, 10);
+    const safePage = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+    const safeLimit = Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : Math.min(parsedLimit, 100);
+    const offset = (safePage - 1) * safeLimit;
+    const orderBy = sort === 'popular' ? 's.play_count DESC, s.created_at DESC' : 's.created_at DESC';
 
     try {
         let result;
@@ -58,16 +63,16 @@ export const getSongs = async (req, res) => {
                 (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
                 FROM songs s JOIN bands b ON s.band_id = b.id 
                 WHERE s.band_id = $1 AND visibility = $2 
-                ORDER BY s.created_at DESC LIMIT $3 OFFSET $4`, 
-                [band_id, 'public', limit, offset]);
+                ORDER BY ${orderBy} LIMIT $3 OFFSET $4`, 
+                [band_id, 'public', safeLimit, offset]);
         } else {
             result = await query(`
                 SELECT s.*, b.name as band_name,
                 (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
                 FROM songs s JOIN bands b ON s.band_id = b.id 
                 WHERE visibility = $1 
-                ORDER BY s.created_at DESC LIMIT $2 OFFSET $3`, 
-                ['public', limit, offset]);
+                ORDER BY ${orderBy} LIMIT $2 OFFSET $3`, 
+                ['public', safeLimit, offset]);
         }
         res.json(result.rows);
     } catch (error) {
@@ -116,6 +121,102 @@ export const deleteSong = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error deleting song' });
+    }
+};
+
+export const getMySongs = async (req, res) => {
+    const userId = req.user.id;
+    const { band_id } = req.query;
+
+    try {
+        const params = [userId];
+        let filterSql = '';
+        if (band_id) {
+            params.push(band_id);
+            filterSql = 'AND s.band_id = $2';
+        }
+
+        const result = await query(`
+            SELECT s.*, b.name as band_name,
+                (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count,
+                (SELECT COUNT(*) FROM playlist_songs WHERE song_id = s.id) as playlist_additions
+            FROM songs s
+            JOIN bands b ON s.band_id = b.id
+            JOIN band_members bm ON bm.band_id = s.band_id
+            WHERE bm.user_id = $1 ${filterSql}
+            ORDER BY s.created_at DESC
+        `, params);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error fetching your songs' });
+    }
+};
+
+export const updateSong = async (req, res) => {
+    const songId = req.params.id;
+    const userId = req.user.id;
+    const { title, description, genre, tags, release_date, album_id, visibility } = req.body;
+
+    try {
+        const songResult = await query('SELECT * FROM songs WHERE id = $1', [songId]);
+        if (songResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Song not found' });
+        }
+        const song = songResult.rows[0];
+
+        const memberCheck = await query(
+            'SELECT * FROM band_members WHERE band_id = $1 AND user_id = $2',
+            [song.band_id, userId]
+        );
+        if (memberCheck.rows.length === 0) {
+            return res.status(403).json({ message: 'Not authorized to edit this song' });
+        }
+
+        let parsedTags = null;
+        if (tags !== undefined) {
+            if (Array.isArray(tags)) {
+                parsedTags = tags;
+            } else if (typeof tags === 'string') {
+                try {
+                    const maybeArray = JSON.parse(tags);
+                    parsedTags = Array.isArray(maybeArray) ? maybeArray : tags.split(',').map((item) => item.trim()).filter(Boolean);
+                } catch {
+                    parsedTags = tags.split(',').map((item) => item.trim()).filter(Boolean);
+                }
+            }
+        }
+
+        let updateFields = [];
+        let values = [];
+        let paramIndex = 1;
+
+        if (title !== undefined && title.trim() !== '') { updateFields.push(`title = $${paramIndex++}`); values.push(title.trim()); }
+        if (description !== undefined) { updateFields.push(`description = $${paramIndex++}`); values.push(description); }
+        if (genre !== undefined) { updateFields.push(`genre = $${paramIndex++}`); values.push(genre); }
+        if (release_date !== undefined) { updateFields.push(`release_date = $${paramIndex++}`); values.push(release_date || null); }
+        if (visibility !== undefined) { updateFields.push(`visibility = $${paramIndex++}`); values.push(visibility); }
+        if (album_id !== undefined) { updateFields.push(`album_id = $${paramIndex++}`); values.push(album_id || null); }
+        if (parsedTags !== null) { updateFields.push(`tags = $${paramIndex++}`); values.push(JSON.stringify(parsedTags)); }
+
+        if (req.files && req.files.cover_image) {
+            updateFields.push(`cover_image = $${paramIndex++}`);
+            values.push(`/uploads/images/${req.files.cover_image[0].filename}`);
+        }
+
+        if (updateFields.length === 0) return res.status(400).json({ message: 'No fields to update' });
+
+        values.push(songId);
+        const updated = await query(
+            `UPDATE songs SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+            values
+        );
+
+        res.json(updated.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error updating song' });
     }
 };
 

@@ -5,6 +5,7 @@ import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 import 'upload_song_screen.dart';
 import 'create_band_screen.dart';
+import 'song_management_screen.dart';
 
 class BandDashboard extends StatefulWidget {
   const BandDashboard({super.key});
@@ -198,6 +199,19 @@ class _BandDashboardState extends State<BandDashboard> {
                   ),
                 ],
               ),
+              const SizedBox(height: 14),
+              if (analytics!['streams_over_time'] is List && (analytics!['streams_over_time'] as List).isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Streams (30d points): ${(analytics!['streams_over_time'] as List).length}  •  Monthly listener points: ${((analytics!['listeners_per_month'] as List?) ?? []).length}',
+                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                  ),
+                ),
             ],
 
             // Top Songs
@@ -221,21 +235,57 @@ class _BandDashboardState extends State<BandDashboard> {
                 );
               }),
             ],
+            if (analytics?['recent_activity'] != null && (analytics!['recent_activity'] as List).isNotEmpty) ...[
+              const SizedBox(height: 18),
+              const Text('Recent Activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...(analytics!['recent_activity'] as List).take(6).map((item) => ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.bolt, size: 18, color: AppTheme.primary),
+                    title: Text('${item['type']} • ${item['song_title'] ?? ''}', style: const TextStyle(fontSize: 13)),
+                  )),
+            ],
 
             const SizedBox(height: 24),
-            // Upload button
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => UploadSongScreen(bandId: selectedBandId),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => UploadSongScreen(bandId: selectedBandId),
+                              ),
+                            );
+                          },
+                    icon: const Icon(Icons.upload_rounded),
+                    label: const Text('Upload'),
+                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
                   ),
-                );
-              },
-              icon: const Icon(Icons.upload_rounded),
-              label: const Text('Upload New Song'),
-              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SongManagementScreen(bandId: selectedBandId!),
+                              ),
+                            );
+                          },
+                    icon: const Icon(Icons.library_music_outlined),
+                    label: const Text('Manage Songs'),
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                  ),
+                ),
+              ],
             ),
           ],
           const SizedBox(height: 80),
