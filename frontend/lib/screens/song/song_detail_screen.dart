@@ -35,7 +35,9 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
   Future<void> _loadData() async {
     try {
       final songRes = await ApiService.get('/songs/${widget.songId}');
-      final commentsRes = await ApiService.get('/comments/song/${widget.songId}');
+      final commentsRes = await ApiService.get(
+        '/comments/song/${widget.songId}',
+      );
 
       if (songRes.statusCode == 200) {
         song = Song.fromJson(jsonDecode(songRes.body));
@@ -48,7 +50,9 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
 
       // Check interaction status
       try {
-        final statusRes = await ApiService.get('/interactions/status?song_id=${widget.songId}');
+        final statusRes = await ApiService.get(
+          '/interactions/status?song_id=${widget.songId}',
+        );
         if (statusRes.statusCode == 200) {
           final status = jsonDecode(statusRes.body);
           liked = status['liked'] ?? false;
@@ -70,7 +74,9 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
 
   Future<void> _toggleFavorite() async {
     try {
-      await ApiService.post('/interactions/favorite', {'song_id': widget.songId});
+      await ApiService.post('/interactions/favorite', {
+        'song_id': widget.songId,
+      });
       setState(() => favorited = !favorited);
     } catch (_) {}
   }
@@ -121,12 +127,17 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     CachedNetworkImage(
                       imageUrl: '${Constants.serverUrl}${song!.coverImage}',
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(color: AppTheme.cardColor),
+                      errorWidget: (_, __, ___) =>
+                          Container(color: AppTheme.cardColor),
                     )
                   else
                     Container(
                       color: AppTheme.cardColor,
-                      child: const Icon(Icons.music_note, size: 80, color: AppTheme.textMuted),
+                      child: const Icon(
+                        Icons.music_note,
+                        size: 80,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
                   Container(
                     decoration: BoxDecoration(
@@ -152,12 +163,18 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                 children: [
                   Text(
                     song!.title,
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     song!.bandName ?? '',
-                    style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                   if (song!.genre != null) ...[
                     const SizedBox(height: 8),
@@ -167,20 +184,27 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     ),
                   ],
                   const SizedBox(height: 16),
+
                   // Action buttons
                   Row(
                     children: [
                       _ActionButton(
                         icon: liked ? Icons.thumb_up : Icons.thumb_up_outlined,
                         label: '${song!.likeCount + (liked ? 1 : 0)}',
-                        color: liked ? AppTheme.primary : AppTheme.textSecondary,
+                        color: liked
+                            ? AppTheme.primary
+                            : AppTheme.textSecondary,
                         onTap: _toggleLike,
                       ),
                       const SizedBox(width: 16),
                       _ActionButton(
-                        icon: favorited ? Icons.favorite : Icons.favorite_border,
+                        icon: favorited
+                            ? Icons.favorite
+                            : Icons.favorite_border,
                         label: favorited ? 'Saved' : 'Save',
-                        color: favorited ? Colors.redAccent : AppTheme.textSecondary,
+                        color: favorited
+                            ? Colors.redAccent
+                            : AppTheme.textSecondary,
                         onTap: _toggleFavorite,
                       ),
                       const Spacer(),
@@ -200,25 +224,44 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
+
                   // Stats
                   Row(
                     children: [
-                      Icon(Icons.play_circle_outline, size: 16, color: AppTheme.textMuted),
+                      Icon(
+                        Icons.play_circle_outline,
+                        size: 16,
+                        color: AppTheme.textMuted,
+                      ),
                       const SizedBox(width: 4),
-                      Text('${song!.playCount} plays', style: const TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                      Text(
+                        '${song!.playCount} plays',
+                        style: const TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 13,
+                        ),
+                      ),
                     ],
                   ),
-                  if (song!.description != null && song!.description!.isNotEmpty) ...[
+                  if (song!.description != null &&
+                      song!.description!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text(song!.description!, style: const TextStyle(color: AppTheme.textSecondary)),
+                    Text(
+                      song!.description!,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
                   ],
                   const SizedBox(height: 24),
                   const Divider(color: AppTheme.divider),
                   const SizedBox(height: 16),
+
                   // Comments
                   Text(
                     'Comments (${comments.length})',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   if (auth.isAuthenticated)
@@ -246,30 +289,42 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
             ),
           ),
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final comment = comments[index];
-                final canDelete = auth.user?.id == comment.userId;
-                return ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AppTheme.surfaceLight,
-                    child: Text(
-                      comment.username.isNotEmpty ? comment.username[0].toUpperCase() : '?',
-                      style: const TextStyle(color: AppTheme.primary),
-                    ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final comment = comments[index];
+              final canDelete = auth.user?.id == comment.userId;
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppTheme.surfaceLight,
+                  child: Text(
+                    comment.username.isNotEmpty
+                        ? comment.username[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(color: AppTheme.primary),
                   ),
-                  title: Text(comment.username, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: Text(comment.text, style: const TextStyle(color: AppTheme.textSecondary)),
-                  trailing: canDelete
-                      ? IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.textMuted),
-                          onPressed: () => _deleteComment(comment.id),
-                        )
-                      : null,
-                );
-              },
-              childCount: comments.length,
-            ),
+                ),
+                title: Text(
+                  comment.username,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                subtitle: Text(
+                  comment.text,
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
+                trailing: canDelete
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: AppTheme.textMuted,
+                        ),
+                        onPressed: () => _deleteComment(comment.id),
+                      )
+                    : null,
+              );
+            }, childCount: comments.length),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
@@ -302,7 +357,10 @@ class _ActionButton extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 22),
             const SizedBox(width: 6),
-            Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: TextStyle(color: color, fontWeight: FontWeight.w500),
+            ),
           ],
         ),
       ),

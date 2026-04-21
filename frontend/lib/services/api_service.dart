@@ -104,16 +104,17 @@ class ApiService {
       for (final entry in files.entries) {
         final fileData = entry.value;
         if (fileData.bytes != null) {
-          request.files.add(http.MultipartFile.fromBytes(
-            entry.key,
-            fileData.bytes!,
-            filename: fileData.filename,
-          ));
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              entry.key,
+              fileData.bytes!,
+              filename: fileData.filename,
+            ),
+          );
         } else if (fileData.path != null) {
-          request.files.add(await http.MultipartFile.fromPath(
-            entry.key,
-            fileData.path!,
-          ));
+          request.files.add(
+            await http.MultipartFile.fromPath(entry.key, fileData.path!),
+          );
         }
       }
     }

@@ -30,7 +30,9 @@ class _BandDashboardState extends State<BandDashboard> {
     try {
       final res = await ApiService.get('/bands/my-bands');
       if (res.statusCode == 200) {
-        bands = (jsonDecode(res.body) as List).map((b) => Band.fromJson(b)).toList();
+        bands = (jsonDecode(res.body) as List)
+            .map((b) => Band.fromJson(b))
+            .toList();
         if (bands.isNotEmpty) {
           selectedBandId = bands.first.id;
           await _loadAnalytics(bands.first.id);
@@ -66,8 +68,10 @@ class _BandDashboardState extends State<BandDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Artist Dashboard',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text(
+                'Artist Dashboard',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               IconButton(
                 icon: const Icon(Icons.refresh, color: AppTheme.textSecondary),
                 onPressed: _loadBands,
@@ -86,17 +90,29 @@ class _BandDashboardState extends State<BandDashboard> {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.group_add, size: 48, color: AppTheme.primary),
+                  const Icon(
+                    Icons.group_add,
+                    size: 48,
+                    color: AppTheme.primary,
+                  ),
                   const SizedBox(height: 12),
-                  const Text('No bands yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'No bands yet',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
-                  const Text('Create a band to start uploading music', style: TextStyle(color: AppTheme.textMuted)),
+                  const Text(
+                    'Create a band to start uploading music',
+                    style: TextStyle(color: AppTheme.textMuted),
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
                       final created = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CreateBandScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const CreateBandScreen(),
+                        ),
                       );
                       if (created == true) {
                         setState(() => isLoading = true);
@@ -126,15 +142,22 @@ class _BandDashboardState extends State<BandDashboard> {
                       },
                       child: Container(
                         margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primary : AppTheme.surfaceLight,
+                          color: isSelected
+                              ? AppTheme.primary
+                              : AppTheme.surfaceLight,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           band.name,
                           style: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.textSecondary,
+                            color: isSelected
+                                ? Colors.white
+                                : AppTheme.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -200,7 +223,8 @@ class _BandDashboardState extends State<BandDashboard> {
                 ],
               ),
               const SizedBox(height: 14),
-              if (analytics!['streams_over_time'] is List && (analytics!['streams_over_time'] as List).isNotEmpty)
+              if (analytics!['streams_over_time'] is List &&
+                  (analytics!['streams_over_time'] as List).isNotEmpty)
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -209,15 +233,22 @@ class _BandDashboardState extends State<BandDashboard> {
                   ),
                   child: Text(
                     'Streams (30d points): ${(analytics!['streams_over_time'] as List).length}  •  Monthly listener points: ${((analytics!['listeners_per_month'] as List?) ?? []).length}',
-                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
             ],
 
             // Top Songs
-            if (analytics?['top_songs'] != null && (analytics!['top_songs'] as List).isNotEmpty) ...[
+            if (analytics?['top_songs'] != null &&
+                (analytics!['top_songs'] as List).isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text('Top Songs', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Top Songs',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               ...(analytics!['top_songs'] as List).asMap().entries.map((entry) {
                 final i = entry.key;
@@ -225,26 +256,54 @@ class _BandDashboardState extends State<BandDashboard> {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor: AppTheme.surfaceLight,
-                    child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
+                    child: Text(
+                      '${i + 1}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                      ),
+                    ),
                   ),
-                  title: Text(song['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
+                  title: Text(
+                    song['title'] ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   trailing: Text(
                     '${song['play_count'] ?? 0} streams',
-                    style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 13,
+                    ),
                   ),
                 );
               }),
             ],
-            if (analytics?['recent_activity'] != null && (analytics!['recent_activity'] as List).isNotEmpty) ...[
+            if (analytics?['recent_activity'] != null &&
+                (analytics!['recent_activity'] as List).isNotEmpty) ...[
               const SizedBox(height: 18),
-              const Text('Recent Activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Recent Activity',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              ...(analytics!['recent_activity'] as List).take(6).map((item) => ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.bolt, size: 18, color: AppTheme.primary),
-                    title: Text('${item['type']} • ${item['song_title'] ?? ''}', style: const TextStyle(fontSize: 13)),
-                  )),
+              ...(analytics!['recent_activity'] as List)
+                  .take(6)
+                  .map(
+                    (item) => ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(
+                        Icons.bolt,
+                        size: 18,
+                        color: AppTheme.primary,
+                      ),
+                      title: Text(
+                        '${item['type']} • ${item['song_title'] ?? ''}',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ),
             ],
 
             const SizedBox(height: 24),
@@ -258,13 +317,16 @@ class _BandDashboardState extends State<BandDashboard> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => UploadSongScreen(bandId: selectedBandId),
+                                builder: (_) =>
+                                    UploadSongScreen(bandId: selectedBandId),
                               ),
                             );
                           },
                     icon: const Icon(Icons.upload_rounded),
                     label: const Text('Upload'),
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -276,13 +338,17 @@ class _BandDashboardState extends State<BandDashboard> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => SongManagementScreen(bandId: selectedBandId!),
+                                builder: (_) => SongManagementScreen(
+                                  bandId: selectedBandId!,
+                                ),
                               ),
                             );
                           },
                     icon: const Icon(Icons.library_music_outlined),
                     label: const Text('Manage Songs'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                   ),
                 ),
               ],
@@ -325,8 +391,18 @@ class _MetricCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-              Text(label, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
+                label,
+                style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -350,9 +426,15 @@ class _SmallMetric extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+          ),
         ],
       ),
     );

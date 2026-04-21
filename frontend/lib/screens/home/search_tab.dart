@@ -48,9 +48,15 @@ class _SearchTabState extends State<SearchTab> {
         if (res.statusCode == 200) {
           final data = jsonDecode(res.body);
           setState(() {
-            songResults = (data['songs'] as List).map((s) => Song.fromJson(s)).toList();
-            bandResults = (data['bands'] as List).map((b) => Band.fromJson(b)).toList();
-            playlistResults = (data['playlists'] as List).map((p) => Playlist.fromJson(p)).toList();
+            songResults = (data['songs'] as List)
+                .map((s) => Song.fromJson(s))
+                .toList();
+            bandResults = (data['bands'] as List)
+                .map((b) => Band.fromJson(b))
+                .toList();
+            playlistResults = (data['playlists'] as List)
+                .map((p) => Playlist.fromJson(p))
+                .toList();
             hasSearched = true;
           });
         }
@@ -86,16 +92,27 @@ class _SearchTabState extends State<SearchTab> {
             ),
           ),
         ),
-        if (isLoading) const LinearProgressIndicator(color: AppTheme.primary, minHeight: 2),
+        if (isLoading)
+          const LinearProgressIndicator(color: AppTheme.primary, minHeight: 2),
         Expanded(
           child: !hasSearched
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search, size: 64, color: AppTheme.textMuted.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.search,
+                        size: 64,
+                        color: AppTheme.textMuted.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(height: 12),
-                      const Text('Search for music', style: TextStyle(color: AppTheme.textMuted, fontSize: 16)),
+                      const Text(
+                        'Search for music',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 16,
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -105,7 +122,13 @@ class _SearchTabState extends State<SearchTab> {
                     if (bandResults.isNotEmpty) ...[
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text('Artists', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'Artists',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       SizedBox(
                         height: 180,
@@ -115,8 +138,14 @@ class _SearchTabState extends State<SearchTab> {
                           itemCount: bandResults.length,
                           itemBuilder: (ctx, i) => BandCard(
                             band: bandResults[i],
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute(builder: (_) => BandProfileScreen(bandId: bandResults[i].id))),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BandProfileScreen(
+                                  bandId: bandResults[i].id,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -126,8 +155,13 @@ class _SearchTabState extends State<SearchTab> {
                     if (songResults.isNotEmpty) ...[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                        child: Text('Songs (${songResults.length})',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'Songs (${songResults.length})',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       ...songResults.map((song) => SongCard(song: song)),
                     ],
@@ -136,25 +170,47 @@ class _SearchTabState extends State<SearchTab> {
                     if (playlistResults.isNotEmpty) ...[
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
-                        child: Text('Playlists', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          'Playlists',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      ...playlistResults.map((p) => PlaylistCard(
-                            playlist: p,
-                            onTap: () => Navigator.push(context,
-                                MaterialPageRoute(builder: (_) => PlaylistViewScreen(playlistId: p.id))),
-                          )),
+                      ...playlistResults.map(
+                        (p) => PlaylistCard(
+                          playlist: p,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  PlaylistViewScreen(playlistId: p.id),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
 
                     // No results
-                    if (songResults.isEmpty && bandResults.isEmpty && playlistResults.isEmpty)
+                    if (songResults.isEmpty &&
+                        bandResults.isEmpty &&
+                        playlistResults.isEmpty)
                       const Padding(
                         padding: EdgeInsets.all(32),
                         child: Center(
                           child: Column(
                             children: [
-                              Icon(Icons.search_off, size: 48, color: AppTheme.textMuted),
+                              Icon(
+                                Icons.search_off,
+                                size: 48,
+                                color: AppTheme.textMuted,
+                              ),
                               SizedBox(height: 12),
-                              Text('No results found', style: TextStyle(color: AppTheme.textMuted)),
+                              Text(
+                                'No results found',
+                                style: TextStyle(color: AppTheme.textMuted),
+                              ),
                             ],
                           ),
                         ),

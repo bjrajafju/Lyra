@@ -31,7 +31,10 @@ class MiniPlayer extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppTheme.surfaceLight,
               border: Border(
-                top: BorderSide(color: AppTheme.primary.withValues(alpha: 0.3), width: 0.5),
+                top: BorderSide(
+                  color: AppTheme.primary.withValues(alpha: 0.3),
+                  width: 0.5,
+                ),
               ),
             ),
             child: Column(
@@ -41,7 +44,9 @@ class MiniPlayer extends StatelessWidget {
                 LinearProgressIndicator(
                   value: progress.clamp(0.0, 1.0),
                   backgroundColor: AppTheme.divider,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppTheme.primary,
+                  ),
                   minHeight: 2,
                 ),
                 SizedBox(
@@ -56,7 +61,8 @@ class MiniPlayer extends StatelessWidget {
                           height: 44,
                           child: song.coverImage != null
                               ? CachedNetworkImage(
-                                  imageUrl: '${Constants.serverUrl}${song.coverImage}',
+                                  imageUrl:
+                                      '${Constants.serverUrl}${song.coverImage}',
                                   fit: BoxFit.cover,
                                   errorWidget: (_, __, ___) => _defaultArt(),
                                 )
@@ -71,14 +77,20 @@ class MiniPlayer extends StatelessWidget {
                           children: [
                             Text(
                               song.title,
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (song.bandName != null)
                               Text(
                                 song.bandName!,
-                                style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                                style: const TextStyle(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 12,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -87,7 +99,9 @@ class MiniPlayer extends StatelessWidget {
                       ),
                       IconButton(
                         icon: Icon(
-                          audio.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          audio.isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
                           color: AppTheme.textPrimary,
                           size: 30,
                         ),
@@ -100,7 +114,11 @@ class MiniPlayer extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.skip_next_rounded, color: AppTheme.textPrimary, size: 26),
+                        icon: const Icon(
+                          Icons.skip_next_rounded,
+                          color: AppTheme.textPrimary,
+                          size: 26,
+                        ),
                         onPressed: () => audio.skipNext(),
                       ),
                       const SizedBox(width: 4),

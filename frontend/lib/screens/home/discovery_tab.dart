@@ -34,11 +34,17 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        trending = (data['trending'] as List).map((e) => Song.fromJson(e)).toList();
-        newReleases = (data['newReleases'] as List).map((e) => Song.fromJson(e)).toList();
+        trending = (data['trending'] as List)
+            .map((e) => Song.fromJson(e))
+            .toList();
+        newReleases = (data['newReleases'] as List)
+            .map((e) => Song.fromJson(e))
+            .toList();
       }
       if (bandsRes.statusCode == 200) {
-        bands = (jsonDecode(bandsRes.body) as List).map((b) => Band.fromJson(b)).toList();
+        bands = (jsonDecode(bandsRes.body) as List)
+            .map((b) => Band.fromJson(b))
+            .toList();
       }
     } catch (e) {
       debugPrint('Discovery error: $e');
@@ -71,7 +77,10 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Text('Discover', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Discover',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
@@ -80,7 +89,10 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
           if (trending.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
-              child: Text('🔥 Trending Now', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                '🔥 Trending Now',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             ...trending.map((song) => SongCard(song: song)),
           ],
@@ -89,7 +101,10 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
           if (bands.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
-              child: Text('Artists For You', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                'Artists For You',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             SizedBox(
               height: 190,
@@ -99,8 +114,12 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
                 itemCount: bands.length,
                 itemBuilder: (ctx, i) => BandCard(
                   band: bands[i],
-                  onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => BandProfileScreen(bandId: bands[i].id))),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BandProfileScreen(bandId: bands[i].id),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -110,7 +129,10 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
           if (newReleases.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
-              child: Text('✨ New Releases', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: Text(
+                '✨ New Releases',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             ...newReleases.map((song) => SongCard(song: song)),
           ],

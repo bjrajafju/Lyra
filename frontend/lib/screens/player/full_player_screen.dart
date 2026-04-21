@@ -41,7 +41,10 @@ class FullPlayerScreen extends StatelessWidget {
                 children: [
                   // Top bar
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -78,10 +81,14 @@ class FullPlayerScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   // Album art
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 20,
+                      ),
                       child: Hero(
                         tag: 'album-art-${song.id}',
                         child: ClipRRect(
@@ -90,7 +97,8 @@ class FullPlayerScreen extends StatelessWidget {
                             aspectRatio: 1,
                             child: song.coverImage != null
                                 ? CachedNetworkImage(
-                                    imageUrl: '${Constants.serverUrl}${song.coverImage}',
+                                    imageUrl:
+                                        '${Constants.serverUrl}${song.coverImage}',
                                     fit: BoxFit.cover,
                                     errorWidget: (_, __, ___) => _defaultArt(),
                                   )
@@ -100,6 +108,7 @@ class FullPlayerScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   // Song info
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -131,7 +140,10 @@ class FullPlayerScreen extends StatelessWidget {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.favorite_border, color: AppTheme.primary),
+                          icon: const Icon(
+                            Icons.favorite_border,
+                            color: AppTheme.primary,
+                          ),
                           iconSize: 28,
                           onPressed: () {},
                         ),
@@ -139,6 +151,7 @@ class FullPlayerScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
+
                   // Seek bar
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -147,16 +160,32 @@ class FullPlayerScreen extends StatelessWidget {
                         SliderTheme(
                           data: SliderTheme.of(context).copyWith(
                             activeTrackColor: AppTheme.primary,
-                            inactiveTrackColor: AppTheme.textMuted.withValues(alpha: 0.3),
+                            inactiveTrackColor: AppTheme.textMuted.withValues(
+                              alpha: 0.3,
+                            ),
                             thumbColor: AppTheme.primary,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 6,
+                            ),
+                            overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 14,
+                            ),
                             trackHeight: 3,
                           ),
                           child: Slider(
                             min: 0,
-                            max: audio.duration.inMilliseconds.toDouble().clamp(1, double.infinity),
-                            value: audio.position.inMilliseconds.toDouble().clamp(0, audio.duration.inMilliseconds.toDouble().clamp(1, double.infinity)),
+                            max: audio.duration.inMilliseconds.toDouble().clamp(
+                              1,
+                              double.infinity,
+                            ),
+                            value: audio.position.inMilliseconds
+                                .toDouble()
+                                .clamp(
+                                  0,
+                                  audio.duration.inMilliseconds
+                                      .toDouble()
+                                      .clamp(1, double.infinity),
+                                ),
                             onChanged: (value) {
                               audio.seek(Duration(milliseconds: value.toInt()));
                             },
@@ -169,11 +198,17 @@ class FullPlayerScreen extends StatelessWidget {
                             children: [
                               Text(
                                 _formatDuration(audio.position),
-                                style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                                style: const TextStyle(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 13,
+                                ),
                               ),
                               Text(
                                 _formatDuration(audio.duration),
-                                style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                                style: const TextStyle(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 13,
+                                ),
                               ),
                             ],
                           ),
@@ -182,6 +217,7 @@ class FullPlayerScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
+
                   // Controls
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -191,12 +227,17 @@ class FullPlayerScreen extends StatelessWidget {
                         IconButton(
                           icon: Icon(
                             Icons.shuffle_rounded,
-                            color: audio.shuffle ? AppTheme.primary : AppTheme.textSecondary,
+                            color: audio.shuffle
+                                ? AppTheme.primary
+                                : AppTheme.textSecondary,
                           ),
                           onPressed: () => audio.toggleShuffle(),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.skip_previous_rounded, size: 38),
+                          icon: const Icon(
+                            Icons.skip_previous_rounded,
+                            size: 38,
+                          ),
                           color: AppTheme.textPrimary,
                           onPressed: () => audio.skipPrevious(),
                         ),
@@ -209,7 +250,9 @@ class FullPlayerScreen extends StatelessWidget {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              audio.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              audio.isPlaying
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
                               size: 38,
                               color: AppTheme.background,
                             ),
@@ -230,7 +273,9 @@ class FullPlayerScreen extends StatelessWidget {
                         IconButton(
                           icon: Icon(
                             Icons.repeat_rounded,
-                            color: audio.repeat ? AppTheme.primary : AppTheme.textSecondary,
+                            color: audio.repeat
+                                ? AppTheme.primary
+                                : AppTheme.textSecondary,
                           ),
                           onPressed: () => audio.toggleRepeat(),
                         ),

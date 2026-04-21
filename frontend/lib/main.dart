@@ -25,9 +25,7 @@ class LyraApp extends StatelessWidget {
         title: 'Lyra — Music Discovery',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
-        routes: {
-          '/register': (context) => const RegisterScreen(),
-        },
+        routes: {'/register': (context) => const RegisterScreen()},
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             // Auto login check
@@ -54,7 +52,9 @@ class LyraApp extends StatelessWidget {
                 ),
               );
             }
-            return auth.isAuthenticated ? const MainScreen() : const LoginScreen();
+            return auth.isAuthenticated
+                ? const MainScreen()
+                : const LoginScreen();
           },
         ),
       ),

@@ -39,21 +39,29 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
     try {
       final bandRes = await ApiService.get('/bands/${widget.bandId}');
       final songsRes = await ApiService.get('/songs?band_id=${widget.bandId}');
-      final albumsRes = await ApiService.get('/albums?band_id=${widget.bandId}');
+      final albumsRes = await ApiService.get(
+        '/albums?band_id=${widget.bandId}',
+      );
 
       if (bandRes.statusCode == 200) {
         band = Band.fromJson(jsonDecode(bandRes.body));
       }
       if (songsRes.statusCode == 200) {
-        songs = (jsonDecode(songsRes.body) as List).map((s) => Song.fromJson(s)).toList();
+        songs = (jsonDecode(songsRes.body) as List)
+            .map((s) => Song.fromJson(s))
+            .toList();
       }
       if (albumsRes.statusCode == 200) {
-        albums = (jsonDecode(albumsRes.body) as List).map((a) => Album.fromJson(a)).toList();
+        albums = (jsonDecode(albumsRes.body) as List)
+            .map((a) => Album.fromJson(a))
+            .toList();
       }
 
       // Check follow status
       try {
-        final statusRes = await ApiService.get('/interactions/status?band_id=${widget.bandId}');
+        final statusRes = await ApiService.get(
+          '/interactions/status?band_id=${widget.bandId}',
+        );
         if (statusRes.statusCode == 200) {
           isFollowing = jsonDecode(statusRes.body)['following_band'] ?? false;
         }
@@ -76,8 +84,10 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (band == null) return const Scaffold(body: Center(child: Text('Band not found')));
+    if (isLoading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (band == null)
+      return const Scaffold(body: Center(child: Text('Band not found')));
 
     return Scaffold(
       body: CustomScrollView(
@@ -86,7 +96,10 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
             expandedHeight: 260,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(band!.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(
+                band!.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -103,7 +116,10 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, AppTheme.background.withValues(alpha: 0.9)],
+                        colors: [
+                          Colors.transparent,
+                          AppTheme.background.withValues(alpha: 0.9),
+                        ],
                       ),
                     ),
                   ),
@@ -124,10 +140,16 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                         radius: 35,
                         backgroundColor: AppTheme.surfaceLight,
                         backgroundImage: band!.profileImage != null
-                            ? CachedNetworkImageProvider('${Constants.serverUrl}${band!.profileImage}')
+                            ? CachedNetworkImageProvider(
+                                '${Constants.serverUrl}${band!.profileImage}',
+                              )
                             : null,
                         child: band!.profileImage == null
-                            ? const Icon(Icons.group, size: 30, color: AppTheme.textMuted)
+                            ? const Icon(
+                                Icons.group,
+                                size: 30,
+                                color: AppTheme.textMuted,
+                              )
                             : null,
                       ),
                       const SizedBox(width: 16),
@@ -137,7 +159,10 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                           children: [
                             Row(
                               children: [
-                                _StatItem('${band!.followerCount}', 'Followers'),
+                                _StatItem(
+                                  '${band!.followerCount}',
+                                  'Followers',
+                                ),
                                 const SizedBox(width: 24),
                                 _StatItem('${band!.totalStreams}', 'Streams'),
                                 const SizedBox(width: 24),
@@ -150,6 +175,7 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
+
                   // Follow + Play buttons
                   Row(
                     children: [
@@ -157,8 +183,14 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                         OutlinedButton(
                           onPressed: _toggleFollow,
                           style: OutlinedButton.styleFrom(
-                            backgroundColor: isFollowing ? AppTheme.primary.withValues(alpha: 0.15) : null,
-                            side: BorderSide(color: isFollowing ? AppTheme.primary : AppTheme.textSecondary),
+                            backgroundColor: isFollowing
+                                ? AppTheme.primary.withValues(alpha: 0.15)
+                                : null,
+                            side: BorderSide(
+                              color: isFollowing
+                                  ? AppTheme.primary
+                                  : AppTheme.textSecondary,
+                            ),
                           ),
                           child: Text(isFollowing ? 'Following' : 'Follow'),
                         ),
@@ -173,30 +205,60 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                         ),
                     ],
                   ),
-                  if (band!.description != null && band!.description!.isNotEmpty) ...[
+                  if (band!.description != null &&
+                      band!.description!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text(band!.description!, style: const TextStyle(color: AppTheme.textSecondary)),
+                    Text(
+                      band!.description!,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
                   ],
+
                   // Members
                   if (band!.members != null && band!.members!.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    const Text('Members', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Members',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
-                      children: band!.members!.map((m) => Chip(
-                        avatar: CircleAvatar(
-                          backgroundColor: AppTheme.primary,
-                          child: Text(m.username[0].toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 12)),
-                        ),
-                        label: Text('${m.username} • ${m.role ?? "Member"}'),
-                      )).toList(),
+                      children: band!.members!
+                          .map(
+                            (m) => Chip(
+                              avatar: CircleAvatar(
+                                backgroundColor: AppTheme.primary,
+                                child: Text(
+                                  m.username[0].toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              label: Text(
+                                '${m.username} • ${m.role ?? "Member"}',
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
+
                   // Albums
                   if (albums.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    const Text('Albums', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Albums',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 210,
@@ -205,15 +267,27 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                         itemCount: albums.length,
                         itemBuilder: (ctx, i) => AlbumCard(
                           album: albums[i],
-                          onTap: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => AlbumViewScreen(albumId: albums[i].id))),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AlbumViewScreen(albumId: albums[i].id),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ],
+
                   // Songs
                   const SizedBox(height: 24),
-                  Text('Songs (${songs.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Songs (${songs.length})',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -221,7 +295,8 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
-              (context, index) => SongCard(song: songs[index], showDuration: true),
+              (context, index) =>
+                  SongCard(song: songs[index], showDuration: true),
               childCount: songs.length,
             ),
           ),
@@ -253,8 +328,14 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        Text(label, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+        ),
       ],
     );
   }

@@ -19,7 +19,8 @@ class LibraryTab extends StatefulWidget {
   State<LibraryTab> createState() => _LibraryTabState();
 }
 
-class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateMixin {
+class _LibraryTabState extends State<LibraryTab>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Song> favorites = [];
   List<Playlist> playlists = [];
@@ -38,11 +39,15 @@ class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateM
     try {
       final favRes = await ApiService.get('/interactions/favorites');
       if (favRes.statusCode == 200) {
-        favorites = (jsonDecode(favRes.body) as List).map((s) => Song.fromJson(s)).toList();
+        favorites = (jsonDecode(favRes.body) as List)
+            .map((s) => Song.fromJson(s))
+            .toList();
       }
       final playRes = await ApiService.get('/playlists/mine');
       if (playRes.statusCode == 200) {
-        playlists = (jsonDecode(playRes.body) as List).map((p) => Playlist.fromJson(p)).toList();
+        playlists = (jsonDecode(playRes.body) as List)
+            .map((p) => Playlist.fromJson(p))
+            .toList();
       }
     } catch (e) {
       debugPrint('Library error: $e');
@@ -82,25 +87,38 @@ class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateM
               isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : favorites.isEmpty
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.favorite_border, size: 48, color: AppTheme.textMuted),
-                              SizedBox(height: 12),
-                              Text('No favorites yet', style: TextStyle(color: AppTheme.textMuted)),
-                              SizedBox(height: 4),
-                              Text('Save songs you love!', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
-                            ],
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.favorite_border,
+                            size: 48,
+                            color: AppTheme.textMuted,
                           ),
-                        )
-                      : RefreshIndicator(
-                          onRefresh: _loadData,
-                          child: ListView.builder(
-                            itemCount: favorites.length,
-                            itemBuilder: (ctx, i) => SongCard(song: favorites[i]),
+                          SizedBox(height: 12),
+                          Text(
+                            'No favorites yet',
+                            style: TextStyle(color: AppTheme.textMuted),
                           ),
-                        ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Save songs you love!',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadData,
+                      child: ListView.builder(
+                        itemCount: favorites.length,
+                        itemBuilder: (ctx, i) => SongCard(song: favorites[i]),
+                      ),
+                    ),
 
               // Playlists
               isLoading
@@ -112,13 +130,20 @@ class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateM
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${playlists.length} playlists',
-                                  style: const TextStyle(color: AppTheme.textMuted)),
+                              Text(
+                                '${playlists.length} playlists',
+                                style: const TextStyle(
+                                  color: AppTheme.textMuted,
+                                ),
+                              ),
                               TextButton.icon(
                                 onPressed: () async {
                                   final created = await Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const CreatePlaylistScreen()),
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const CreatePlaylistScreen(),
+                                    ),
                                   );
                                   if (created == true) _loadData();
                                 },
@@ -134,9 +159,18 @@ class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateM
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.queue_music, size: 48, color: AppTheme.textMuted),
+                                      Icon(
+                                        Icons.queue_music,
+                                        size: 48,
+                                        color: AppTheme.textMuted,
+                                      ),
                                       SizedBox(height: 12),
-                                      Text('No playlists yet', style: TextStyle(color: AppTheme.textMuted)),
+                                      Text(
+                                        'No playlists yet',
+                                        style: TextStyle(
+                                          color: AppTheme.textMuted,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 )
@@ -146,8 +180,14 @@ class _LibraryTabState extends State<LibraryTab> with SingleTickerProviderStateM
                                     itemCount: playlists.length,
                                     itemBuilder: (ctx, i) => PlaylistCard(
                                       playlist: playlists[i],
-                                      onTap: () => Navigator.push(context,
-                                          MaterialPageRoute(builder: (_) => PlaylistViewScreen(playlistId: playlists[i].id))),
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => PlaylistViewScreen(
+                                            playlistId: playlists[i].id,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),

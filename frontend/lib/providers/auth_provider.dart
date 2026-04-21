@@ -89,7 +89,9 @@ class AuthProvider with ChangeNotifier {
       final res = await ApiService.get('/auth/profile');
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
-        data['token'] = prefs.getString('token'); // inject current token locally
+        data['token'] = prefs.getString('token');
+
+        // inject current token locally
         _user = User.fromJson(data);
       } else {
         await logout();

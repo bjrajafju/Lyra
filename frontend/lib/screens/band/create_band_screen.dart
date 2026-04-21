@@ -20,7 +20,10 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
   bool _isCreating = false;
 
   Future<void> _pickImage(bool isProfile) async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result != null) {
       setState(() {
         if (isProfile) {
@@ -34,9 +37,9 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
 
   Future<void> _createBand() async {
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Band name is required')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Band name is required')));
       return;
     }
 
@@ -45,7 +48,10 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
 
-      var request = http.MultipartRequest('POST', Uri.parse('${Constants.baseUrl}/bands'));
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${Constants.baseUrl}/bands'),
+      );
       request.headers['Authorization'] = 'Bearer $token';
 
       request.fields['name'] = _nameController.text.trim();
@@ -53,24 +59,48 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
 
       if (_profileImage != null) {
         if (_profileImage!.bytes != null) {
-          request.files.add(http.MultipartFile.fromBytes('profile_image', _profileImage!.bytes!, filename: _profileImage!.name));
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'profile_image',
+              _profileImage!.bytes!,
+              filename: _profileImage!.name,
+            ),
+          );
         } else if (_profileImage!.path != null) {
-          request.files.add(await http.MultipartFile.fromPath('profile_image', _profileImage!.path!));
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'profile_image',
+              _profileImage!.path!,
+            ),
+          );
         }
       }
 
       if (_bannerImage != null) {
         if (_bannerImage!.bytes != null) {
-          request.files.add(http.MultipartFile.fromBytes('banner_image', _bannerImage!.bytes!, filename: _bannerImage!.name));
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'banner_image',
+              _bannerImage!.bytes!,
+              filename: _bannerImage!.name,
+            ),
+          );
         } else if (_bannerImage!.path != null) {
-          request.files.add(await http.MultipartFile.fromPath('banner_image', _bannerImage!.path!));
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'banner_image',
+              _bannerImage!.path!,
+            ),
+          );
         }
       }
 
       var response = await request.send();
       if (response.statusCode == 201) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Band created successfully!')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Band created successfully!')),
+          );
           Navigator.pop(context, true);
         }
       } else {
@@ -79,7 +109,10 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
       }
     } catch (e) {
       debugPrint('$e');
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to create band')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to create band')));
     } finally {
       if (mounted) setState(() => _isCreating = false);
     }
@@ -96,34 +129,44 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Band Name*', prefixIcon: Icon(Icons.group)),
+              decoration: const InputDecoration(
+                labelText: 'Band Name*',
+                prefixIcon: Icon(Icons.group),
+              ),
               autofocus: true,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _descController,
-              decoration: const InputDecoration(labelText: 'Description (optional)', prefixIcon: Icon(Icons.description)),
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+                prefixIcon: Icon(Icons.description),
+              ),
               maxLines: 3,
             ),
             const SizedBox(height: 24),
-            
+
             // Profile image picker
             _ImagePicker(
-              label: _profileImage == null ? 'Pick Profile Image (Optional)' : _profileImage!.name,
+              label: _profileImage == null
+                  ? 'Pick Profile Image (Optional)'
+                  : _profileImage!.name,
               icon: Icons.person_add_alt_1,
               onTap: () => _pickImage(true),
               isSelected: _profileImage != null,
             ),
             const SizedBox(height: 12),
-            
+
             // Banner image picker
             _ImagePicker(
-              label: _bannerImage == null ? 'Pick Banner Image (Optional)' : _bannerImage!.name,
+              label: _bannerImage == null
+                  ? 'Pick Banner Image (Optional)'
+                  : _bannerImage!.name,
               icon: Icons.image,
               onTap: () => _pickImage(false),
               isSelected: _bannerImage != null,
             ),
-            
+
             const SizedBox(height: 40),
             _isCreating
                 ? const Center(child: CircularProgressIndicator())
@@ -131,7 +174,9 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
                     onPressed: _createBand,
                     icon: const Icon(Icons.add),
                     label: const Text('Create Band'),
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                    ),
                   ),
           ],
         ),
@@ -170,17 +215,25 @@ class _ImagePicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppTheme.primary : AppTheme.textMuted),
+            Icon(
+              icon,
+              color: isSelected ? AppTheme.primary : AppTheme.textMuted,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary),
+                style: TextStyle(
+                  color: isSelected
+                      ? AppTheme.textPrimary
+                      : AppTheme.textSecondary,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
           ],
         ),
       ),

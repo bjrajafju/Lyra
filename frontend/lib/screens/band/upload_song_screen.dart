@@ -23,22 +23,32 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   String visibility = 'public';
 
   Future<void> pickAudio() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.audio, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+      withData: true,
+    );
     if (result != null) setState(() => audioFile = result.files.first);
   }
 
   Future<void> pickCover() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result != null) setState(() => coverFile = result.files.first);
   }
 
   Future<void> upload() async {
     if (audioFile == null || titleController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Audio and Title are required')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Audio and Title are required')),
+      );
       return;
     }
     if (widget.bandId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select a band first')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Select a band first')));
       return;
     }
 
@@ -54,8 +64,10 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
           'description': descController.text.trim(),
           'duration': '180',
           'visibility': visibility,
-          if (releaseDateController.text.trim().isNotEmpty) 'release_date': releaseDateController.text.trim(),
-          if (tagsController.text.trim().isNotEmpty) 'tags': tagsController.text.trim(),
+          if (releaseDateController.text.trim().isNotEmpty)
+            'release_date': releaseDateController.text.trim(),
+          if (tagsController.text.trim().isNotEmpty)
+            'tags': tagsController.text.trim(),
         },
         files: {
           if (audioFile != null)
@@ -74,7 +86,9 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
       );
       if (response.statusCode == 201) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload successful!')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Upload successful!')));
           Navigator.pop(context, true);
         }
       } else {
@@ -82,7 +96,10 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
       }
     } catch (e) {
       debugPrint('$e');
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload failed')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Upload failed')));
     } finally {
       if (mounted) setState(() => isUploading = false);
     }
@@ -99,28 +116,43 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(labelText: 'Song Title', prefixIcon: Icon(Icons.music_note)),
+              decoration: const InputDecoration(
+                labelText: 'Song Title',
+                prefixIcon: Icon(Icons.music_note),
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: genreController,
-              decoration: const InputDecoration(labelText: 'Genre', prefixIcon: Icon(Icons.category)),
+              decoration: const InputDecoration(
+                labelText: 'Genre',
+                prefixIcon: Icon(Icons.category),
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descController,
-              decoration: const InputDecoration(labelText: 'Description (optional)', prefixIcon: Icon(Icons.description)),
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+                prefixIcon: Icon(Icons.description),
+              ),
               maxLines: 2,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: tagsController,
-              decoration: const InputDecoration(labelText: 'Tags (comma separated)', prefixIcon: Icon(Icons.tag)),
+              decoration: const InputDecoration(
+                labelText: 'Tags (comma separated)',
+                prefixIcon: Icon(Icons.tag),
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: releaseDateController,
-              decoration: const InputDecoration(labelText: 'Release date (YYYY-MM-DD)', prefixIcon: Icon(Icons.date_range)),
+              decoration: const InputDecoration(
+                labelText: 'Release date (YYYY-MM-DD)',
+                prefixIcon: Icon(Icons.date_range),
+              ),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -136,6 +168,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
               decoration: const InputDecoration(labelText: 'Visibility'),
             ),
             const SizedBox(height: 24),
+
             // Audio picker
             _FilePicker(
               label: audioFile == null ? 'Pick Audio File' : audioFile!.name,
@@ -145,7 +178,9 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
             ),
             const SizedBox(height: 12),
             _FilePicker(
-              label: coverFile == null ? 'Pick Cover Image (Optional)' : coverFile!.name,
+              label: coverFile == null
+                  ? 'Pick Cover Image (Optional)'
+                  : coverFile!.name,
               icon: Icons.image_rounded,
               onTap: pickCover,
               isSelected: coverFile != null,
@@ -157,7 +192,9 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     onPressed: upload,
                     icon: const Icon(Icons.cloud_upload_rounded),
                     label: const Text('Upload Song'),
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                    ),
                   ),
           ],
         ),
@@ -196,13 +233,18 @@ class _FilePicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? AppTheme.primary : AppTheme.textMuted),
+            Icon(
+              icon,
+              color: isSelected ? AppTheme.primary : AppTheme.textMuted,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
                 style: TextStyle(
-                  color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
+                  color: isSelected
+                      ? AppTheme.textPrimary
+                      : AppTheme.textSecondary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
