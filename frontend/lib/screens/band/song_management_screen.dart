@@ -120,7 +120,7 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white05),
+        border: Border.all(color: AppTheme.white05),
       ),
       child: Column(
         children: [

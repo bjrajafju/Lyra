@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../theme/app_theme.dart';
 import '../../services/content_service.dart';
@@ -78,12 +79,12 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
         genreIds: _selectedGenreIds,
         audio: MultipartFileData(
           bytes: audioFile!.bytes,
-          path: audioFile!.path,
+          path: kIsWeb ? null : audioFile!.path,
           filename: audioFile!.name,
         ),
         coverImage: coverFile != null ? MultipartFileData(
           bytes: coverFile!.bytes,
-          path: coverFile!.path,
+          path: kIsWeb ? null : coverFile!.path,
           filename: coverFile!.name,
         ) : null,
       );
@@ -225,7 +226,7 @@ class _FileSelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppTheme.primary : Colors.white05, width: isSelected ? 2 : 1),
+          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.white05, width: isSelected ? 2 : 1),
         ),
         child: Row(
           children: [

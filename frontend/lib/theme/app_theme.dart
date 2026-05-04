@@ -18,6 +18,11 @@ class AppTheme {
   static const Color error = Color(0xFFEF4444);
   static const Color success = Color(0xFF10B981);
   
+  // Backward compatibility & utility
+  static const Color divider = Colors.white10;
+  static const Color cardColor = surface;
+  static const Color white05 = Color(0x0DFFFFFF); // 5% white
+  
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -64,7 +69,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.white05, width: 1),
+          side: const BorderSide(color: white05, width: 1),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
@@ -78,7 +83,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.white05, width: 1),
+          borderSide: const BorderSide(color: white05, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -119,7 +124,7 @@ class AppTheme {
         selectedLabelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
         unselectedLabelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
       ),
-      dividerTheme: const DividerThemeData(color: Colors.white05, thickness: 1),
+      dividerTheme: const DividerThemeData(color: white05, thickness: 1),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surfaceLight,
         contentTextStyle: const TextStyle(color: textPrimary, fontWeight: FontWeight.w600),

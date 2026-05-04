@@ -1,6 +1,6 @@
 import express from 'express';
 import { getBandAnalytics, getSongStats } from '../controllers/analyticsController.js';
-import { protect, artistOnly } from '../middleware/authMiddleware.js';
+import { protect, checkBandRole } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

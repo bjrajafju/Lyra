@@ -28,7 +28,7 @@ export const artistOnly = (req, res, next) => {
 
 export const checkBandRole = (requiredRole) => {
     return async (req, res, next) => {
-        const bandId = req.params.bandId || req.params.id || req.body.band_id;
+        const bandId = req.params.bandId || req.params.id || req.query.bandId || (req.body ? req.body.band_id : null);
         const userId = req.user.id;
 
         if (!bandId) {

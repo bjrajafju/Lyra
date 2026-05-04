@@ -4,7 +4,7 @@ import 'api_service.dart';
 class ContentService {
   // Songs
   static Future<List<dynamic>> getBandSongs(String bandId) async {
-    final response = await ApiService.get('/api/songs/mine?bandId=$bandId');
+    final response = await ApiService.get('/songs/mine?bandId=$bandId');
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -13,7 +13,7 @@ class ContentService {
   }
 
   static Future<void> toggleSongStatus(String songId) async {
-    final response = await ApiService.patch('/api/songs/$songId/status', {});
+    final response = await ApiService.patch('/songs/$songId/status', {});
     if (response.statusCode != 200) {
       final error = jsonDecode(response.body);
       throw Exception(error['message'] ?? 'Failed to toggle status');
@@ -21,7 +21,7 @@ class ContentService {
   }
 
   static Future<void> deleteSong(String songId) async {
-    final response = await ApiService.delete('/api/songs/$songId');
+    final response = await ApiService.delete('/songs/$songId');
     if (response.statusCode != 200) {
       throw Exception('Failed to delete song');
     }
@@ -29,7 +29,7 @@ class ContentService {
 
   // Albums
   static Future<List<dynamic>> getBandAlbums(String bandId) async {
-    final response = await ApiService.get('/api/albums?bandId=$bandId');
+    final response = await ApiService.get('/albums?bandId=$bandId');
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -38,7 +38,7 @@ class ContentService {
   }
 
   static Future<List<dynamic>> getAlbumSongs(String albumId) async {
-    final response = await ApiService.get('/api/albums/$albumId');
+    final response = await ApiService.get('/albums/$albumId');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return data['songs'] ?? [];
@@ -48,7 +48,7 @@ class ContentService {
   }
 
   static Future<void> reorderAlbumSongs(String albumId, List<Map<String, int>> orders) async {
-    final response = await ApiService.patch('/api/albums/$albumId/reorder', {
+    final response = await ApiService.patch('/albums/$albumId/reorder', {
       'orders': orders,
     });
     if (response.statusCode != 200) {
@@ -79,7 +79,7 @@ class ContentService {
 
     final response = await ApiService.multipartRequest(
       method: 'POST',
-      endpoint: '/api/songs',
+      endpoint: '/songs?bandId=$bandId',
       fields: fields,
       files: files,
     );
@@ -91,7 +91,7 @@ class ContentService {
 
   // Genres
   static Future<List<dynamic>> getGenres() async {
-    final response = await ApiService.get('/api/search/genres');
+    final response = await ApiService.get('/search/genres');
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

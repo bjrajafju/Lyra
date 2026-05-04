@@ -115,18 +115,25 @@ export const deleteAlbum = async (req, res) => {
 
 export const reorderAlbumSongs = async (req, res) => {
     const { id } = req.params;
-    const { songIds } = req.body;
-
-    if (!songIds || !Array.isArray(songIds)) {
-        return res.status(400).json({ message: 'songIds array is required' });
-    }
+    const { songIds, orders } = req.body;
 
     try {
-        for (let i = 0; i < songIds.length; i++) {
-            await query(
-                'UPDATE album_songs SET position = $1 WHERE album_id = $2 AND song_id = $3',
-                [i + 1, id, songIds[i]]
-            );
+        if (orders && Array.isArray(orders)) {
+            for (const order of orders) {
+                await query(
+                    'UPDATE album_songs SET position = $1 WHERE album_id = $2 AND song_id = $3',
+                    [order.position, id, order.id]
+                );
+            }
+        } else if (songIds && Array.isArray(songIds)) {
+            for (let i = 0; i < songIds.length; i++) {
+                await query(
+                    'UPDATE album_songs SET position = $1 WHERE album_id = $2 AND song_id = $3',
+                    [i + 1, id, songIds[i]]
+                );
+            }
+        } else {
+            return res.status(400).json({ message: 'orders or songIds array is required' });
         }
         res.json({ message: 'Songs reordered' });
     } catch (error) {

@@ -103,7 +103,7 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white05),
+          border: Border.all(color: AppTheme.white05),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../models/song_model.dart';
 import '../../services/api_service.dart';
@@ -76,7 +77,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
       if (_coverFile != null) {
         files['cover_image'] = MultipartFileData(
           bytes: _coverFile!.bytes,
-          path: _coverFile!.path,
+          path: kIsWeb ? null : _coverFile!.path,
           filename: _coverFile!.name,
         );
       }

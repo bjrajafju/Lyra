@@ -105,7 +105,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white05, width: 1),
+        border: Border.all(color: AppTheme.white05, width: 1),
       ),
       child: Column(
         children: [

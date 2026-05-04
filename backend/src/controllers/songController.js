@@ -78,15 +78,40 @@ export const getSongs = async (req, res) => {
     }
 };
 
-export const toggleSongStatus = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body; // 'published' or 'draft'
-
-    if (!['published', 'draft'].includes(status)) {
-        return res.status(400).json({ message: 'Invalid status' });
-    }
+export const getMySongs = async (req, res) => {
+    const { bandId } = req.query; // Usually passed from dashboard
+    if (!bandId) return res.status(400).json({ message: 'bandId is required' });
 
     try {
+        const result = await query(`
+            SELECT s.*,
+            (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count,
+            (SELECT COUNT(*) FROM favorites WHERE song_id = s.id) as favorite_count,
+            (SELECT COUNT(*) FROM playlist_songs WHERE song_id = s.id) as playlist_additions
+            FROM songs s WHERE s.band_id = $1 ORDER BY s.created_at DESC
+        `, [bandId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching management songs' });
+    }
+};
+
+export const toggleSongStatus = async (req, res) => {
+    const { id } = req.params;
+    let { status } = req.body;
+
+    try {
+        if (!status) {
+            const current = await query('SELECT status FROM songs WHERE id = $1', [id]);
+            if (current.rows.length === 0) return res.status(404).json({ message: 'Song not found' });
+            status = current.rows[0].status === 'published' ? 'draft' : 'published';
+        }
+
+        if (!['published', 'draft'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
         let updateSql = 'UPDATE songs SET status = $1, updated_at = CURRENT_TIMESTAMP';
         let params = [status, id];
 
@@ -97,8 +122,6 @@ export const toggleSongStatus = async (req, res) => {
         updateSql += ' WHERE id = $2 RETURNING *';
 
         const result = await query(updateSql, params);
-        if (result.rows.length === 0) return res.status(404).json({ message: 'Song not found' });
-
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);

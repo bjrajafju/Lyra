@@ -194,7 +194,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white05),
+        border: Border.all(color: AppTheme.white05),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -13,6 +13,7 @@ class Song {
   final int likeCount;
   final int playlistAdditions;
   final String? releaseDate;
+  final String status;
 
   Song({
     required this.id,
@@ -29,6 +30,7 @@ class Song {
     this.likeCount = 0,
     this.playlistAdditions = 0,
     this.releaseDate,
+    this.status = 'published',
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class Song {
       likeCount: int.tryParse('${json['like_count'] ?? 0}') ?? 0,
       playlistAdditions: int.tryParse('${json['playlist_additions'] ?? json['playlist_count'] ?? 0}') ?? 0,
       releaseDate: json['release_date'],
+      status: json['status'] ?? 'published',
     );
   }
 }

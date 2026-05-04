@@ -74,3 +74,13 @@ export const getDiscovery = async (req, res) => {
         res.status(500).json({ message: 'Discovery error' });
     }
 };
+
+export const getGenres = async (req, res) => {
+    try {
+        const result = await query('SELECT * FROM genres ORDER BY name ASC');
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching genres' });
+    }
+};

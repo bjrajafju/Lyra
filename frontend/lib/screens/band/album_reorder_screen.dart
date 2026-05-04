@@ -111,7 +111,7 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white05),
+        border: Border.all(color: AppTheme.white05),
       ),
       child: ListTile(
         leading: Text(

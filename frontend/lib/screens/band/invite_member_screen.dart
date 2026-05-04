@@ -92,7 +92,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primary.withValues(alpha: 0.1) : AppTheme.surfaceLight,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppTheme.primary : Colors.white05, width: 2),
+          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.white05, width: 2),
         ),
         child: Row(
           children: [

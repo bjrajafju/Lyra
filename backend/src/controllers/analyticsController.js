@@ -6,14 +6,14 @@ export const getBandAnalytics = async (req, res) => {
         const bandInfo = await query('SELECT total_streams, created_at FROM bands WHERE id = $1', [bandId]);
         
         // Sum song stats directly
-        const likes = await query('SELECT COUNT(*) FROM likes l JOIN songs s ON l.song_id = s.id WHERE s.band_id = $1', [band_id]);
-        const followers = await query('SELECT COUNT(*) FROM band_follows WHERE band_id = $1', [band_id]);
+        const likes = await query('SELECT COUNT(*) FROM likes l JOIN songs s ON l.song_id = s.id WHERE s.band_id = $1', [bandId]);
+        const followers = await query('SELECT COUNT(*) FROM band_follows WHERE band_id = $1', [bandId]);
 
         const topSongs = await query(`
             SELECT s.id, s.title, s.play_count, s.cover_image,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
             FROM songs s WHERE s.band_id = $1 ORDER BY s.play_count DESC LIMIT 5
-        `, [band_id]);
+        `, [bandId]);
 
         // Monthly listeners (unique users who streamed in last 30 days)
         const monthlyListeners = await query(`
@@ -21,7 +21,7 @@ export const getBandAnalytics = async (req, res) => {
             FROM streams st 
             JOIN songs s ON st.song_id = s.id 
             WHERE s.band_id = $1 AND st.user_id IS NOT NULL AND st.played_at > NOW() - INTERVAL '30 days'
-        `, [band_id]);
+        `, [bandId]);
 
         // Recent streams count (last 30 days)
         const recentStreams = await query(`
@@ -29,7 +29,7 @@ export const getBandAnalytics = async (req, res) => {
             FROM streams st 
             JOIN songs s ON st.song_id = s.id 
             WHERE s.band_id = $1 AND st.played_at > NOW() - INTERVAL '30 days'
-        `, [band_id]);
+        `, [bandId]);
 
         // Playlist additions
         const playlistAdds = await query(`
@@ -37,14 +37,14 @@ export const getBandAnalytics = async (req, res) => {
             FROM playlist_songs ps 
             JOIN songs s ON ps.song_id = s.id 
             WHERE s.band_id = $1
-        `, [band_id]);
+        `, [bandId]);
 
         // Follower growth (last 30 days)
         const newFollowers = await query(`
             SELECT COUNT(*) as count 
             FROM band_follows 
             WHERE band_id = $1 AND created_at > NOW() - INTERVAL '30 days'
-        `, [band_id]);
+        `, [bandId]);
 
         const streamsOverTime = await query(`
             SELECT DATE_TRUNC('day', st.played_at) AS day, COUNT(*)::int AS stream_count
@@ -53,7 +53,7 @@ export const getBandAnalytics = async (req, res) => {
             WHERE s.band_id = $1 AND st.played_at > NOW() - INTERVAL '30 days'
             GROUP BY day
             ORDER BY day ASC
-        `, [band_id]);
+        `, [bandId]);
 
         const listenersPerMonth = await query(`
             SELECT DATE_TRUNC('month', st.played_at) AS month, COUNT(DISTINCT st.user_id)::int AS listeners
@@ -62,7 +62,7 @@ export const getBandAnalytics = async (req, res) => {
             WHERE s.band_id = $1 AND st.user_id IS NOT NULL AND st.played_at > NOW() - INTERVAL '12 months'
             GROUP BY month
             ORDER BY month ASC
-        `, [band_id]);
+        `, [bandId]);
 
         const followerGrowth = await query(`
             SELECT DATE_TRUNC('month', bf.created_at) AS month, COUNT(*)::int AS followers
@@ -70,7 +70,7 @@ export const getBandAnalytics = async (req, res) => {
             WHERE bf.band_id = $1 AND bf.created_at > NOW() - INTERVAL '12 months'
             GROUP BY month
             ORDER BY month ASC
-        `, [band_id]);
+        `, [bandId]);
 
         const recentActivity = await query(`
             SELECT 'stream'::text AS type, st.played_at AS created_at, s.title AS song_title
@@ -89,7 +89,7 @@ export const getBandAnalytics = async (req, res) => {
             WHERE s.band_id = $1
             ORDER BY created_at DESC
             LIMIT 20
-        `, [band_id]);
+        `, [bandId]);
 
         res.json({
             total_streams: bandInfo.rows[0]?.total_streams || 0,
@@ -120,7 +120,7 @@ export const getSongStats = async (req, res) => {
             (SELECT COUNT(*) FROM favorites WHERE song_id = s.id) as favorite_count,
             (SELECT COUNT(*) FROM playlist_songs WHERE song_id = s.id) as playlist_count
             FROM songs s WHERE s.band_id = $1 ORDER BY s.play_count DESC
-        `, [band_id]);
+        `, [bandId]);
 
         res.json(result.rows);
     } catch (error) {
