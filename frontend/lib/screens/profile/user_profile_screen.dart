@@ -12,6 +12,7 @@ import '../../widgets/song_card.dart';
 import '../../widgets/playlist_card.dart';
 import '../playlist/playlist_view_screen.dart';
 import 'edit_profile_screen.dart';
+import 'invitations_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final int? userId;
@@ -81,6 +82,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
+          if (isOwnProfile)
+            IconButton(
+              icon: const Icon(Icons.mail_outline),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const InvitationsScreen()),
+              ),
+            ),
           if (isOwnProfile)
             IconButton(
               icon: const Icon(Icons.edit),

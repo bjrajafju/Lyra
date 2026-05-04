@@ -10,6 +10,7 @@ import commentRoutes from './routes/commentRoutes.js';
 import albumRoutes from './routes/albumRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
+import invitationRoutes from './routes/invitationRoutes.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', message: 'Lyra API is running' });

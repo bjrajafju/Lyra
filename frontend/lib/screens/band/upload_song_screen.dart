@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../theme/app_theme.dart';
+import '../../services/content_service.dart';
 import '../../services/api_service.dart';
 
 class UploadSongScreen extends StatefulWidget {
@@ -12,94 +13,89 @@ class UploadSongScreen extends StatefulWidget {
 }
 
 class _UploadSongScreenState extends State<UploadSongScreen> {
+  final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
-  final genreController = TextEditingController();
-  final descController = TextEditingController();
-  final tagsController = TextEditingController();
-  final releaseDateController = TextEditingController();
+  
+  List<dynamic> _genres = [];
+  List<int> _selectedGenreIds = [];
+  List<dynamic> _albums = [];
+  int? _selectedAlbumId;
+  
   PlatformFile? audioFile;
   PlatformFile? coverFile;
   bool isUploading = false;
-  String visibility = 'public';
+  bool _isLoadingGenres = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    try {
+      final genres = await ContentService.getGenres();
+      if (widget.bandId != null) {
+        final albums = await ContentService.getBandAlbums(widget.bandId.toString());
+        setState(() => _albums = albums);
+      }
+      setState(() {
+        _genres = genres;
+        _isLoadingGenres = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingGenres = false);
+    }
+  }
 
   Future<void> pickAudio() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
-      withData: true,
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.audio, withData: true);
     if (result != null) setState(() => audioFile = result.files.first);
   }
 
   Future<void> pickCover() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
     if (result != null) setState(() => coverFile = result.files.first);
   }
 
   Future<void> upload() async {
-    if (audioFile == null || titleController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Audio and Title are required')),
-      );
+    if (!_formKey.currentState!.validate()) return;
+    if (audioFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an audio file')));
       return;
     }
-    if (widget.bandId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Select a band first')));
+    if (_selectedGenreIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one genre')));
       return;
     }
 
     setState(() => isUploading = true);
     try {
-      final response = await ApiService.multipartRequest(
-        method: 'POST',
-        endpoint: '/songs',
-        fields: {
-          'band_id': '${widget.bandId}',
-          'title': titleController.text.trim(),
-          'genre': genreController.text.trim(),
-          'description': descController.text.trim(),
-          'duration': '180',
-          'visibility': visibility,
-          if (releaseDateController.text.trim().isNotEmpty)
-            'release_date': releaseDateController.text.trim(),
-          if (tagsController.text.trim().isNotEmpty)
-            'tags': tagsController.text.trim(),
-        },
-        files: {
-          if (audioFile != null)
-            'audio': MultipartFileData(
-              bytes: audioFile!.bytes,
-              path: audioFile!.path,
-              filename: audioFile!.name,
-            ),
-          if (coverFile != null)
-            'cover_image': MultipartFileData(
-              bytes: coverFile!.bytes,
-              path: coverFile!.path,
-              filename: coverFile!.name,
-            ),
-        },
+      await ContentService.uploadSong(
+        bandId: widget.bandId.toString(),
+        title: titleController.text.trim(),
+        albumId: _selectedAlbumId?.toString(),
+        genreIds: _selectedGenreIds,
+        audio: MultipartFileData(
+          bytes: audioFile!.bytes,
+          path: audioFile!.path,
+          filename: audioFile!.name,
+        ),
+        coverImage: coverFile != null ? MultipartFileData(
+          bytes: coverFile!.bytes,
+          path: coverFile!.path,
+          filename: coverFile!.name,
+        ) : null,
       );
-      if (response.statusCode == 201) {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Upload successful!')));
-          Navigator.pop(context, true);
-        }
-      } else {
-        throw Exception('Upload failed ${response.statusCode}');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Song uploaded as Draft!'), backgroundColor: AppTheme.success));
+        Navigator.pop(context, true);
       }
     } catch (e) {
-      debugPrint('$e');
-      if (mounted)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Upload failed')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => isUploading = false);
     }
@@ -108,109 +104,112 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Upload New Song')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Song Title',
-                prefixIcon: Icon(Icons.music_note),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: genreController,
-              decoration: const InputDecoration(
-                labelText: 'Genre',
-                prefixIcon: Icon(Icons.category),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descController,
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                prefixIcon: Icon(Icons.description),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: tagsController,
-              decoration: const InputDecoration(
-                labelText: 'Tags (comma separated)',
-                prefixIcon: Icon(Icons.tag),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: releaseDateController,
-              decoration: const InputDecoration(
-                labelText: 'Release date (YYYY-MM-DD)',
-                prefixIcon: Icon(Icons.date_range),
-              ),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              initialValue: visibility,
-              onChanged: (value) {
-                if (value != null) setState(() => visibility = value);
-              },
-              items: const [
-                DropdownMenuItem(value: 'public', child: Text('Public')),
-                DropdownMenuItem(value: 'private', child: Text('Private')),
-                DropdownMenuItem(value: 'unlisted', child: Text('Unlisted')),
-              ],
-              decoration: const InputDecoration(labelText: 'Visibility'),
-            ),
-            const SizedBox(height: 24),
-
-            // Audio picker
-            _FilePicker(
-              label: audioFile == null ? 'Pick Audio File' : audioFile!.name,
-              icon: Icons.audiotrack_rounded,
-              onTap: pickAudio,
-              isSelected: audioFile != null,
-            ),
-            const SizedBox(height: 12),
-            _FilePicker(
-              label: coverFile == null
-                  ? 'Pick Cover Image (Optional)'
-                  : coverFile!.name,
-              icon: Icons.image_rounded,
-              onTap: pickCover,
-              isSelected: coverFile != null,
-            ),
-            const SizedBox(height: 40),
-            isUploading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton.icon(
-                    onPressed: upload,
-                    icon: const Icon(Icons.cloud_upload_rounded),
-                    label: const Text('Upload Song'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52),
+      appBar: AppBar(title: const Text('New Release')),
+      body: _isLoadingGenres 
+          ? const Center(child: CircularProgressIndicator())
+          : Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('General Info', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Track Title', prefixIcon: Icon(Icons.music_note_outlined)),
+                      validator: (v) => v == null || v.isEmpty ? 'Title is required' : null,
                     ),
-                  ),
-          ],
-        ),
-      ),
+                    const SizedBox(height: 24),
+                    
+                    Text('Genres', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _genres.map((g) {
+                        final isSelected = _selectedGenreIds.contains(g['id']);
+                        return FilterChip(
+                          label: Text(g['name']),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              if (selected) _selectedGenreIds.add(g['id']);
+                              else _selectedGenreIds.remove(g['id']);
+                            });
+                          },
+                          showCheckmark: false,
+                          backgroundColor: AppTheme.surface,
+                          selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                          side: BorderSide(color: isSelected ? AppTheme.primary : Colors.white10),
+                          labelStyle: TextStyle(
+                            color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Text('Album (Optional)', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      value: _selectedAlbumId,
+                      items: [
+                        const DropdownMenuItem(value: null, child: Text('No Album')),
+                        ..._albums.map((a) => DropdownMenuItem(value: a['id'], child: Text(a['title']))),
+                      ],
+                      onChanged: (v) => setState(() => _selectedAlbumId = v),
+                      decoration: const InputDecoration(prefixIcon: Icon(Icons.album_outlined)),
+                    ),
+                    const SizedBox(height: 32),
+
+                    Text('Files', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    const SizedBox(height: 16),
+                    _FileSelector(
+                      label: audioFile == null ? 'Select Audio (MP3/WAV)' : audioFile!.name,
+                      subtitle: audioFile == null ? 'Up to 50MB' : '${(audioFile!.size / 1024 / 1024).toStringAsFixed(2)} MB',
+                      icon: Icons.audiotrack_rounded,
+                      onTap: pickAudio,
+                      isSelected: audioFile != null,
+                    ),
+                    const SizedBox(height: 12),
+                    _FileSelector(
+                      label: coverFile == null ? 'Artwork (Optional)' : coverFile!.name,
+                      subtitle: coverFile == null ? 'JPEG or PNG' : 'Ready to upload',
+                      icon: Icons.image_outlined,
+                      onTap: pickCover,
+                      isSelected: coverFile != null,
+                    ),
+                    const SizedBox(height: 48),
+
+                    isUploading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ElevatedButton(
+                            onPressed: upload,
+                            style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(60)),
+                            child: const Text('UPLOAD TRACK'),
+                          ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
 
-class _FilePicker extends StatelessWidget {
+class _FileSelector extends StatelessWidget {
   final String label;
+  final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
   final bool isSelected;
 
-  const _FilePicker({
+  const _FileSelector({
     required this.label,
+    required this.subtitle,
     required this.icon,
     required this.onTap,
     this.isSelected = false,
@@ -220,38 +219,32 @@ class _FilePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceLight,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppTheme.primary : AppTheme.divider,
-            width: isSelected ? 2 : 1,
-          ),
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? AppTheme.primary : Colors.white05, width: isSelected ? 2 : 1),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppTheme.primary : AppTheme.textMuted,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: (isSelected ? AppTheme.primary : AppTheme.textMuted).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, color: isSelected ? AppTheme.primary : AppTheme.textMuted),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: isSelected
-                      ? AppTheme.textPrimary
-                      : AppTheme.textSecondary,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                ],
               ),
             ),
-            if (isSelected)
-              const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
+            if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primary),
           ],
         ),
       ),

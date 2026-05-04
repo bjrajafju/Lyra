@@ -4,7 +4,7 @@ import { protect, artistOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/:band_id', protect, artistOnly, getBandAnalytics);
-router.get('/:band_id/song-stats', protect, artistOnly, getSongStats);
+router.get('/:bandId', protect, checkBandRole('member'), getBandAnalytics);
+router.get('/:bandId/song-stats', protect, checkBandRole('member'), getSongStats);
 
 export default router;

@@ -20,10 +20,10 @@ export const createBand = async (req, res) => {
 
         const band = newBand.rows[0];
 
-        // Add creator as band member automatically
+        // Add creator as band member automatically with 'admin' role
         await query(
             'INSERT INTO band_members (band_id, user_id, role_in_band) VALUES ($1, $2, $3)',
-            [band.id, creator_id, 'Admin/Creator']
+            [band.id, creator_id, 'admin']
         );
 
         res.status(201).json(band);
@@ -70,14 +70,8 @@ export const getBandById = async (req, res) => {
 export const updateBand = async (req, res) => {
     const { name, description } = req.body;
     const bandId = req.params.id;
-    const userId = req.user.id;
 
     try {
-        // Check ownership
-        const band = await query('SELECT * FROM bands WHERE id = $1', [bandId]);
-        if (band.rows.length === 0) return res.status(404).json({ message: 'Band not found' });
-        if (band.rows[0].creator_id !== userId) return res.status(403).json({ message: 'Not authorized' });
-
         let updateFields = [];
         let values = [];
         let paramIndex = 1;
@@ -98,6 +92,8 @@ export const updateBand = async (req, res) => {
 
         if (updateFields.length === 0) return res.status(400).json({ message: 'No fields to update' });
 
+        updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
         values.push(bandId);
         const result = await query(
             `UPDATE bands SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
@@ -112,12 +108,7 @@ export const updateBand = async (req, res) => {
 
 export const deleteBand = async (req, res) => {
     const bandId = req.params.id;
-    const userId = req.user.id;
     try {
-        const band = await query('SELECT * FROM bands WHERE id = $1', [bandId]);
-        if (band.rows.length === 0) return res.status(404).json({ message: 'Band not found' });
-        if (band.rows[0].creator_id !== userId) return res.status(403).json({ message: 'Not authorized' });
-
         await query('DELETE FROM bands WHERE id = $1', [bandId]);
         res.json({ message: 'Band deleted successfully' });
     } catch (error) {
@@ -139,44 +130,6 @@ export const getUserBands = async (req, res) => {
             ORDER BY b.created_at DESC
         `, [userId]);
         res.json(result.rows);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-export const addBandMember = async (req, res) => {
-    const { user_id, role_in_band } = req.body;
-    const bandId = req.params.id;
-    const userId = req.user.id;
-    try {
-        const band = await query('SELECT * FROM bands WHERE id = $1', [bandId]);
-        if (band.rows.length === 0) return res.status(404).json({ message: 'Band not found' });
-        if (band.rows[0].creator_id !== userId) return res.status(403).json({ message: 'Only the band creator can add members' });
-
-        await query(
-            'INSERT INTO band_members (band_id, user_id, role_in_band) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [bandId, user_id, role_in_band || 'Member']
-        );
-        res.json({ message: 'Member added' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-export const removeBandMember = async (req, res) => {
-    const bandId = req.params.id;
-    const memberId = req.params.userId;
-    const userId = req.user.id;
-    try {
-        const band = await query('SELECT * FROM bands WHERE id = $1', [bandId]);
-        if (band.rows.length === 0) return res.status(404).json({ message: 'Band not found' });
-        if (band.rows[0].creator_id !== userId) return res.status(403).json({ message: 'Only the band creator can remove members' });
-        if (parseInt(memberId) === userId) return res.status(400).json({ message: 'Cannot remove yourself as creator' });
-
-        await query('DELETE FROM band_members WHERE band_id = $1 AND user_id = $2', [bandId, memberId]);
-        res.json({ message: 'Member removed' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

@@ -1,14 +1,9 @@
 import { query } from '../db/index.js';
 
 export const getBandAnalytics = async (req, res) => {
-    const { band_id } = req.params;
-    const user_id = req.user.id;
+    const { bandId } = req.params;
     try {
-        // Check member
-        const mem = await query('SELECT * FROM band_members WHERE band_id = $1 AND user_id = $2', [band_id, user_id]);
-        if (mem.rows.length === 0) return res.status(403).json({ message: 'Not authorized for this band' });
-
-        const bandInfo = await query('SELECT total_streams, created_at FROM bands WHERE id = $1', [band_id]);
+        const bandInfo = await query('SELECT total_streams, created_at FROM bands WHERE id = $1', [bandId]);
         
         // Sum song stats directly
         const likes = await query('SELECT COUNT(*) FROM likes l JOIN songs s ON l.song_id = s.id WHERE s.band_id = $1', [band_id]);
@@ -117,12 +112,8 @@ export const getBandAnalytics = async (req, res) => {
 };
 
 export const getSongStats = async (req, res) => {
-    const { band_id } = req.params;
-    const user_id = req.user.id;
+    const { bandId } = req.params;
     try {
-        const mem = await query('SELECT * FROM band_members WHERE band_id = $1 AND user_id = $2', [band_id, user_id]);
-        if (mem.rows.length === 0) return res.status(403).json({ message: 'Not authorized' });
-
         const result = await query(`
             SELECT s.id, s.title, s.play_count, s.cover_image, s.created_at,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count,
