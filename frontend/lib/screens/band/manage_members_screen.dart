@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../services/band_member_service.dart';
+import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import 'invite_member_screen.dart';
 
@@ -29,7 +31,9 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
 
   Future<void> _fetchMembers() async {
     try {
-      final members = await BandMemberService.getMembers(widget.bandId.toString());
+      final members = await BandMemberService.getMembers(
+        widget.bandId.toString(),
+      );
       setState(() {
         _members = members;
         _isLoading = false;
@@ -37,13 +41,17 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
 
   void _showRolePicker(dynamic member) {
+    final currentUserId = context.read<AuthProvider>().user?.id;
     if (widget.currentUserRole == 'member') return;
+    if (member['user_id'] == currentUserId) return;
 
     // Editor restriction: cannot manage Admins or promote to Admin
     if (widget.currentUserRole == 'editor') {
@@ -53,15 +61,19 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppTheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 16),
-          const Text('Change Role', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text(
+            'Change Role',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
-          if (widget.currentUserRole == 'admin')
-            _roleTile('admin', member),
+          if (widget.currentUserRole == 'admin') _roleTile('admin', member),
           _roleTile('editor', member),
           _roleTile('member', member),
           const SizedBox(height: 32),
@@ -74,19 +86,29 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
     final isSelected = member['role'] == role;
     return ListTile(
       title: Text(role.toUpperCase()),
-      trailing: isSelected ? const Icon(Icons.check, color: AppTheme.primary) : null,
-      onTap: isSelected ? null : () => _updateRole(member['user_id'].toString(), role),
+      trailing: isSelected
+          ? const Icon(Icons.check, color: AppTheme.primary)
+          : null,
+      onTap: isSelected
+          ? null
+          : () => _updateRole(member['user_id'].toString(), role),
     );
   }
 
   Future<void> _updateRole(String userId, String role) async {
     Navigator.pop(context);
     try {
-      await BandMemberService.updateMemberRole(widget.bandId.toString(), userId, role);
+      await BandMemberService.updateMemberRole(
+        widget.bandId.toString(),
+        userId,
+        role,
+      );
       _fetchMembers();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -98,10 +120,16 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         title: const Text('Remove Member'),
         content: Text('Are you sure you want to remove ${member['username']}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove', style: TextStyle(color: AppTheme.error)),
+            child: const Text(
+              'Remove',
+              style: TextStyle(color: AppTheme.error),
+            ),
           ),
         ],
       ),
@@ -109,11 +137,16 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
 
     if (confirm == true) {
       try {
-        await BandMemberService.removeMember(widget.bandId.toString(), member['user_id'].toString());
+        await BandMemberService.removeMember(
+          widget.bandId.toString(),
+          member['user_id'].toString(),
+        );
         _fetchMembers();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
@@ -156,14 +189,16 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
   }
 
   Widget _buildMemberTile(dynamic member) {
-    final isMe = member['user_id'] == 1; // Need actual current user ID from provider
+    final currentUserId = context.read<AuthProvider>().user?.id;
+    final isMe = member['user_id'] == currentUserId;
     final role = member['role'].toString().toLowerCase();
-    
+
     // Permission check for removal
     bool canRemove = false;
     if (widget.currentUserRole == 'admin') {
-      if (role != 'admin' || _members.where((m) => m['role'] == 'admin').length > 1) {
-         canRemove = !isMe;
+      if (role != 'admin' ||
+          _members.where((m) => m['role'] == 'admin').length > 1) {
+        canRemove = !isMe;
       }
     } else if (widget.currentUserRole == 'editor') {
       canRemove = role == 'member';
@@ -180,8 +215,12 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         onTap: () => _showRolePicker(member),
         leading: CircleAvatar(
           backgroundColor: AppTheme.surfaceLight,
-          backgroundImage: member['profile_picture'] != null ? NetworkImage(member['profile_picture']) : null,
-          child: member['profile_picture'] == null ? const Icon(Icons.person) : null,
+          backgroundImage: member['profile_picture'] != null
+              ? NetworkImage(member['profile_picture'])
+              : null,
+          child: member['profile_picture'] == null
+              ? const Icon(Icons.person)
+              : null,
         ),
         title: Text(
           member['username'] ?? 'User',
@@ -194,7 +233,9 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
               decoration: BoxDecoration(
                 color: _getRoleColor(role).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: _getRoleColor(role).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: _getRoleColor(role).withValues(alpha: 0.3),
+                ),
               ),
               child: Text(
                 role.toUpperCase(),
@@ -209,7 +250,11 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         ),
         trailing: canRemove
             ? IconButton(
-                icon: const Icon(Icons.remove_circle_outline, color: AppTheme.error, size: 20),
+                icon: const Icon(
+                  Icons.remove_circle_outline,
+                  color: AppTheme.error,
+                  size: 20,
+                ),
                 onPressed: () => _removeMember(member),
               )
             : null,
@@ -219,9 +264,12 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
 
   Color _getRoleColor(String role) {
     switch (role) {
-      case 'admin': return AppTheme.primary;
-      case 'editor': return AppTheme.accent;
-      default: return AppTheme.textSecondary;
+      case 'admin':
+        return AppTheme.primary;
+      case 'editor':
+        return AppTheme.accent;
+      default:
+        return AppTheme.textSecondary;
     }
   }
 }

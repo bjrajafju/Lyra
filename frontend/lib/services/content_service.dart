@@ -56,6 +56,34 @@ class ContentService {
     }
   }
 
+  static Future<void> createAlbum({
+    required String bandId,
+    required String title,
+    String? description,
+    MultipartFileData? coverImage,
+  }) async {
+    final fields = {
+      'band_id': bandId,
+      'title': title,
+      if (description != null) 'description': description,
+    };
+
+    final files = {
+      if (coverImage != null) 'cover_image': coverImage,
+    };
+
+    final response = await ApiService.multipartRequest(
+      method: 'POST',
+      endpoint: '/albums',
+      fields: fields,
+      files: files,
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create album');
+    }
+  }
+
   // Upload (Multipart)
   static Future<void> uploadSong({
     required String bandId,

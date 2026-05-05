@@ -23,7 +23,7 @@ export const registerUser = async (req, res) => {
         );
         const user = newUser.rows[0];
         const token = generateToken(user.id, user.role);
-        
+
         res.status(201).json({
             id: user.id,
             username: user.username,

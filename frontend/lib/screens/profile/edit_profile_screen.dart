@@ -42,9 +42,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'bio': bioController.text,
       });
       if (res.statusCode == 200 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile updated!')));
         Navigator.pop(context);
       }
     } catch (_) {
@@ -59,7 +59,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (isLoading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
@@ -82,7 +83,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _save,
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                     child: const Text('Save Changes'),
                   ),
             const SizedBox(height: 24),
@@ -92,22 +95,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   context: context,
                   builder: (ctx) => AlertDialog(
                     title: const Text('Delete Account'),
-                    content: const Text('Are you sure? This action cannot be undone.'),
+                    content: const Text(
+                      'Are you sure? This action cannot be undone.',
+                    ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Delete', style: TextStyle(color: AppTheme.error)),
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(color: AppTheme.error),
+                        ),
                       ),
                     ],
                   ),
                 );
                 if (confirm == true) {
                   await ApiService.delete('/auth/profile');
-                  if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+                  if (mounted)
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                 }
               },
-              child: const Text('Delete Account', style: TextStyle(color: AppTheme.error)),
+              child: const Text(
+                'Delete Account',
+                style: TextStyle(color: AppTheme.error),
+              ),
             ),
           ],
         ),

@@ -47,7 +47,11 @@ class Song {
       playCount: json['play_count'] ?? 0,
       duration: json['duration'] ?? 0,
       likeCount: int.tryParse('${json['like_count'] ?? 0}') ?? 0,
-      playlistAdditions: int.tryParse('${json['playlist_additions'] ?? json['playlist_count'] ?? 0}') ?? 0,
+      playlistAdditions:
+          int.tryParse(
+            '${json['playlist_additions'] ?? json['playlist_count'] ?? 0}',
+          ) ??
+          0,
       releaseDate: json['release_date'],
       status: json['status'] ?? 'published',
     );

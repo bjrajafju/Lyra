@@ -18,11 +18,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final _tabs = const [
-    DiscoveryTab(),
-    SearchTab(),
-    LibraryTab(),
-  ];
+  final _tabs = const [DiscoveryTab(), SearchTab(), LibraryTab()];
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +74,10 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Discover'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.library_music), label: 'Library'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: 'Library',
+          ),
         ],
       ),
     );

@@ -41,8 +41,10 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (album == null) return const Scaffold(body: Center(child: Text('Album not found')));
+    if (isLoading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (album == null)
+      return const Scaffold(body: Center(child: Text('Album not found')));
 
     return Scaffold(
       body: CustomScrollView(
@@ -51,7 +53,10 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
             expandedHeight: 280,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(album!.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              title: Text(
+                album!.title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -68,7 +73,10 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, AppTheme.background.withValues(alpha: 0.9)],
+                        colors: [
+                          Colors.transparent,
+                          AppTheme.background.withValues(alpha: 0.9),
+                        ],
                       ),
                     ),
                   ),
@@ -83,18 +91,31 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (album!.bandName != null)
-                    Text(album!.bandName!, style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
+                    Text(
+                      album!.bandName!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   if (album!.releaseDate != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         'Released ${album!.releaseDate}',
-                        style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
-                  if (album!.description != null && album!.description!.isNotEmpty) ...[
+                  if (album!.description != null &&
+                      album!.description!.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Text(album!.description!, style: const TextStyle(color: AppTheme.textSecondary)),
+                    Text(
+                      album!.description!,
+                      style: const TextStyle(color: AppTheme.textSecondary),
+                    ),
                   ],
                   const SizedBox(height: 16),
                   Row(
@@ -107,12 +128,17 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
                       if (album!.songs != null && album!.songs!.isNotEmpty)
                         ElevatedButton.icon(
                           onPressed: () {
-                            context.read<AudioProvider>().playQueue(album!.songs!);
+                            context.read<AudioProvider>().playQueue(
+                              album!.songs!,
+                            );
                           },
                           icon: const Icon(Icons.play_arrow_rounded, size: 20),
                           label: const Text('Play All'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                           ),
                         ),
                     ],
@@ -124,13 +150,10 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
           ),
           if (album!.songs != null)
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final song = album!.songs![index];
-                  return SongCard(song: song, showDuration: true);
-                },
-                childCount: album!.songs!.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final song = album!.songs![index];
+                return SongCard(song: song, showDuration: true);
+              }, childCount: album!.songs!.length),
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],

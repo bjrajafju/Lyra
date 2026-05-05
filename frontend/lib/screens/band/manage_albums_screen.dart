@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/content_service.dart';
 import '../../theme/app_theme.dart';
 import 'album_reorder_screen.dart';
+import 'create_album_screen.dart';
 
 class ManageAlbumsScreen extends StatefulWidget {
   final int bandId;
@@ -24,7 +25,9 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
   Future<void> _loadAlbums() async {
     setState(() => _isLoading = true);
     try {
-      final albums = await ContentService.getBandAlbums(widget.bandId.toString());
+      final albums = await ContentService.getBandAlbums(
+        widget.bandId.toString(),
+      );
       setState(() {
         _albums = albums;
         _isLoading = false;
@@ -32,7 +35,9 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -45,8 +50,14 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
-            onPressed: () {
-              // TODO: Navigate to CreateAlbumScreen
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CreateAlbumScreen(bandId: widget.bandId),
+                ),
+              );
+              if (result == true) _loadAlbums();
             },
           ),
         ],
@@ -59,12 +70,13 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
                   ? _buildEmptyState()
                   : GridView.builder(
                       padding: const EdgeInsets.all(16),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.8,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.8,
+                          ),
                       itemCount: _albums.length,
                       itemBuilder: (context, index) {
                         final album = _albums[index];
@@ -80,9 +92,16 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.album_outlined, size: 80, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+          Icon(
+            Icons.album_outlined,
+            size: 80,
+            color: AppTheme.textMuted.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          const Text('No albums created yet', style: TextStyle(color: AppTheme.textSecondary, fontSize: 18)),
+          const Text(
+            'No albums created yet',
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 18),
+          ),
         ],
       ),
     );
@@ -93,9 +112,7 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
       onTap: () async {
         final result = await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => AlbumReorderScreen(album: album),
-          ),
+          MaterialPageRoute(builder: (_) => AlbumReorderScreen(album: album)),
         );
         if (result == true) _loadAlbums();
       },
@@ -111,13 +128,20 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(23)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(23),
+                  ),
                   image: album['cover_image'] != null
-                      ? DecorationImage(image: NetworkImage(album['cover_image']), fit: BoxFit.cover)
+                      ? DecorationImage(
+                          image: NetworkImage(album['cover_image']),
+                          fit: BoxFit.cover,
+                        )
                       : null,
                   color: AppTheme.surfaceLight,
                 ),
-                child: album['cover_image'] == null ? const Center(child: Icon(Icons.album, size: 40)) : null,
+                child: album['cover_image'] == null
+                    ? const Center(child: Icon(Icons.album, size: 40))
+                    : null,
               ),
             ),
             Padding(
@@ -127,14 +151,20 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
                 children: [
                   Text(
                     album['title'] ?? 'Untitled',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${album['song_count'] ?? 0} tracks',
-                    style: const TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppTheme.textMuted,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

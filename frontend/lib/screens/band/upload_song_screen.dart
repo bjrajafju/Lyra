@@ -16,12 +16,12 @@ class UploadSongScreen extends StatefulWidget {
 class _UploadSongScreenState extends State<UploadSongScreen> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
-  
+
   List<dynamic> _genres = [];
   List<int> _selectedGenreIds = [];
   List<dynamic> _albums = [];
   int? _selectedAlbumId;
-  
+
   PlatformFile? audioFile;
   PlatformFile? coverFile;
   bool isUploading = false;
@@ -37,7 +37,9 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
     try {
       final genres = await ContentService.getGenres();
       if (widget.bandId != null) {
-        final albums = await ContentService.getBandAlbums(widget.bandId.toString());
+        final albums = await ContentService.getBandAlbums(
+          widget.bandId.toString(),
+        );
         setState(() => _albums = albums);
       }
       setState(() {
@@ -50,23 +52,33 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   }
 
   Future<void> pickAudio() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.audio, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+      withData: true,
+    );
     if (result != null) setState(() => audioFile = result.files.first);
   }
 
   Future<void> pickCover() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result != null) setState(() => coverFile = result.files.first);
   }
 
   Future<void> upload() async {
     if (!_formKey.currentState!.validate()) return;
     if (audioFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an audio file')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an audio file')),
+      );
       return;
     }
     if (_selectedGenreIds.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one genre')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one genre')),
+      );
       return;
     }
 
@@ -82,20 +94,29 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
           path: kIsWeb ? null : audioFile!.path,
           filename: audioFile!.name,
         ),
-        coverImage: coverFile != null ? MultipartFileData(
-          bytes: coverFile!.bytes,
-          path: kIsWeb ? null : coverFile!.path,
-          filename: coverFile!.name,
-        ) : null,
+        coverImage: coverFile != null
+            ? MultipartFileData(
+                bytes: coverFile!.bytes,
+                path: kIsWeb ? null : coverFile!.path,
+                filename: coverFile!.name,
+              )
+            : null,
       );
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Song uploaded as Draft!'), backgroundColor: AppTheme.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Song uploaded as Draft!'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       }
     } finally {
       if (mounted) setState(() => isUploading = false);
@@ -106,7 +127,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('New Release')),
-      body: _isLoadingGenres 
+      body: _isLoadingGenres
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
@@ -115,16 +136,36 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('General Info', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    Text(
+                      'General Info',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: titleController,
-                      decoration: const InputDecoration(labelText: 'Track Title', prefixIcon: Icon(Icons.music_note_outlined)),
-                      validator: (v) => v == null || v.isEmpty ? 'Title is required' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Track Title',
+                        prefixIcon: Icon(Icons.music_note_outlined),
+                      ),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Title is required' : null,
                     ),
                     const SizedBox(height: 24),
-                    
-                    Text('Genres', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+
+                    Text(
+                      'Genres',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
@@ -136,49 +177,95 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                           selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
-                              if (selected) _selectedGenreIds.add(g['id']);
-                              else _selectedGenreIds.remove(g['id']);
+                              if (selected)
+                                _selectedGenreIds.add(g['id']);
+                              else
+                                _selectedGenreIds.remove(g['id']);
                             });
                           },
                           showCheckmark: false,
                           backgroundColor: AppTheme.surface,
-                          selectedColor: AppTheme.primary.withValues(alpha: 0.2),
-                          side: BorderSide(color: isSelected ? AppTheme.primary : Colors.white10),
+                          selectedColor: AppTheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppTheme.primary
+                                : Colors.white10,
+                          ),
                           labelStyle: TextStyle(
-                            color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected
+                                ? AppTheme.primary
+                                : AppTheme.textSecondary,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         );
                       }).toList(),
                     ),
                     const SizedBox(height: 24),
 
-                    Text('Album (Optional)', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    Text(
+                      'Album (Optional)',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
                       value: _selectedAlbumId,
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('No Album')),
-                        ..._albums.map((a) => DropdownMenuItem(value: a['id'], child: Text(a['title']))),
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('No Album'),
+                        ),
+                        ..._albums.map(
+                          (a) => DropdownMenuItem(
+                            value: a['id'],
+                            child: Text(a['title']),
+                          ),
+                        ),
                       ],
                       onChanged: (v) => setState(() => _selectedAlbumId = v),
-                      decoration: const InputDecoration(prefixIcon: Icon(Icons.album_outlined)),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.album_outlined),
+                      ),
                     ),
                     const SizedBox(height: 32),
 
-                    Text('Files', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1)),
+                    Text(
+                      'Files',
+                      style: TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        letterSpacing: 1,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     _FileSelector(
-                      label: audioFile == null ? 'Select Audio (MP3/WAV)' : audioFile!.name,
-                      subtitle: audioFile == null ? 'Up to 50MB' : '${(audioFile!.size / 1024 / 1024).toStringAsFixed(2)} MB',
+                      label: audioFile == null
+                          ? 'Select Audio (MP3/WAV)'
+                          : audioFile!.name,
+                      subtitle: audioFile == null
+                          ? 'Up to 50MB'
+                          : '${(audioFile!.size / 1024 / 1024).toStringAsFixed(2)} MB',
                       icon: Icons.audiotrack_rounded,
                       onTap: pickAudio,
                       isSelected: audioFile != null,
                     ),
                     const SizedBox(height: 12),
                     _FileSelector(
-                      label: coverFile == null ? 'Artwork (Optional)' : coverFile!.name,
-                      subtitle: coverFile == null ? 'JPEG or PNG' : 'Ready to upload',
+                      label: coverFile == null
+                          ? 'Artwork (Optional)'
+                          : coverFile!.name,
+                      subtitle: coverFile == null
+                          ? 'JPEG or PNG'
+                          : 'Ready to upload',
                       icon: Icons.image_outlined,
                       onTap: pickCover,
                       isSelected: coverFile != null,
@@ -189,7 +276,9 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                         ? const Center(child: CircularProgressIndicator())
                         : ElevatedButton(
                             onPressed: upload,
-                            style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(60)),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(60),
+                            ),
                             child: const Text('UPLOAD TRACK'),
                           ),
                     const SizedBox(height: 40),
@@ -226,26 +315,53 @@ class _FileSelector extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? AppTheme.primary : AppTheme.white05, width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: isSelected ? AppTheme.primary : AppTheme.white05,
+            width: isSelected ? 2 : 1,
+          ),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: (isSelected ? AppTheme.primary : AppTheme.textMuted).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, color: isSelected ? AppTheme.primary : AppTheme.textMuted),
+              decoration: BoxDecoration(
+                color: (isSelected ? AppTheme.primary : AppTheme.textMuted)
+                    .withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? AppTheme.primary : AppTheme.textMuted,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isSelected
+                          ? AppTheme.textPrimary
+                          : AppTheme.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textMuted,
+                    ),
+                  ),
                 ],
               ),
             ),
-            if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primary),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppTheme.primary),
           ],
         ),
       ),

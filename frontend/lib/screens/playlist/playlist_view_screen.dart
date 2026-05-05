@@ -69,8 +69,14 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
           decoration: const InputDecoration(labelText: 'Song ID'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Add')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Add'),
+          ),
         ],
       ),
     );
@@ -86,9 +92,10 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
     setState(() => isSavingOrder = true);
     try {
       final songIds = _editableSongs.map((song) => song.id).toList();
-      final res = await ApiService.put('/playlists/${widget.playlistId}/songs/reorder', {
-        'song_ids': songIds,
-      });
+      final res = await ApiService.put(
+        '/playlists/${widget.playlistId}/songs/reorder',
+        {'song_ids': songIds},
+      );
       if (res.statusCode == 200 && mounted) {
         setState(() => isEditingOrder = false);
         _loadPlaylist();
@@ -100,7 +107,9 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
   Future<void> _editPlaylistMetadata() async {
     if (playlist == null) return;
     final titleController = TextEditingController(text: playlist!.title);
-    final descController = TextEditingController(text: playlist!.description ?? '');
+    final descController = TextEditingController(
+      text: playlist!.description ?? '',
+    );
     bool isPublic = playlist!.isPublic;
     PlatformFile? cover;
 
@@ -131,7 +140,10 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
                 ),
                 TextButton.icon(
                   onPressed: () async {
-                    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.image,
+                      withData: true,
+                    );
                     if (result != null) {
                       setDialogState(() => cover = result.files.first);
                     }
@@ -143,8 +155,14 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Save'),
+            ),
           ],
         ),
       ),
@@ -176,14 +194,21 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
   }
 
   Future<void> _deletePlaylist() async {
-    final confirm = await showDialog<bool>(
+    final confirm =
+        await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
             title: const Text('Delete playlist?'),
             content: const Text('This action cannot be undone.'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Delete'),
+              ),
             ],
           ),
         ) ??
@@ -195,8 +220,10 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (playlist == null) return const Scaffold(body: Center(child: Text('Playlist not found')));
+    if (isLoading)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (playlist == null)
+      return const Scaffold(body: Center(child: Text('Playlist not found')));
 
     final auth = context.read<AuthProvider>();
     final isOwner = auth.user?.id == playlist!.creatorId;
@@ -210,19 +237,40 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
               onSelected: (value) {
                 if (value == 'edit') _editPlaylistMetadata();
                 if (value == 'add') _addSongPrompt();
-                if (value == 'reorder') setState(() => isEditingOrder = !isEditingOrder);
+                if (value == 'reorder')
+                  setState(() => isEditingOrder = !isEditingOrder);
                 if (value == 'share') {
-                  Clipboard.setData(ClipboardData(text: '${Constants.serverUrl}/playlists/${playlist!.id}'));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Playlist link copied')));
+                  Clipboard.setData(
+                    ClipboardData(
+                      text: '${Constants.serverUrl}/playlists/${playlist!.id}',
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Playlist link copied')),
+                  );
                 }
                 if (value == 'delete') _deletePlaylist();
               },
               itemBuilder: (_) => [
-                const PopupMenuItem(value: 'edit', child: Text('Edit playlist')),
-                const PopupMenuItem(value: 'add', child: Text('Add song by ID')),
-                PopupMenuItem(value: 'reorder', child: Text(isEditingOrder ? 'Cancel reorder' : 'Reorder songs')),
+                const PopupMenuItem(
+                  value: 'edit',
+                  child: Text('Edit playlist'),
+                ),
+                const PopupMenuItem(
+                  value: 'add',
+                  child: Text('Add song by ID'),
+                ),
+                PopupMenuItem(
+                  value: 'reorder',
+                  child: Text(
+                    isEditingOrder ? 'Cancel reorder' : 'Reorder songs',
+                  ),
+                ),
                 const PopupMenuItem(value: 'share', child: Text('Share')),
-                const PopupMenuItem(value: 'delete', child: Text('Delete playlist')),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete playlist'),
+                ),
               ],
             ),
         ],
@@ -247,7 +295,10 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, AppTheme.background.withValues(alpha: 0.7)],
+                      colors: [
+                        Colors.transparent,
+                        AppTheme.background.withValues(alpha: 0.7),
+                      ],
                     ),
                   ),
                 ),
@@ -259,20 +310,30 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (playlist!.description != null && playlist!.description!.isNotEmpty)
-                  Text(playlist!.description!, style: const TextStyle(color: AppTheme.textSecondary)),
+                if (playlist!.description != null &&
+                    playlist!.description!.isNotEmpty)
+                  Text(
+                    playlist!.description!,
+                    style: const TextStyle(color: AppTheme.textSecondary),
+                  ),
                 const SizedBox(height: 6),
                 Text(
                   '${playlist!.songs?.length ?? 0} songs • ${playlist!.creatorName ?? ''}',
-                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                  style: const TextStyle(
+                    color: AppTheme.textMuted,
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Row(
                   children: [
                     ElevatedButton.icon(
-                      onPressed: playlist!.songs == null || playlist!.songs!.isEmpty
+                      onPressed:
+                          playlist!.songs == null || playlist!.songs!.isEmpty
                           ? null
-                          : () => context.read<AudioProvider>().playQueue(playlist!.songs!),
+                          : () => context.read<AudioProvider>().playQueue(
+                              playlist!.songs!,
+                            ),
                       icon: const Icon(Icons.play_arrow_rounded),
                       label: const Text('Play all'),
                     ),
@@ -321,18 +382,22 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
                 },
               )
             else
-              ...playlist!.songs!.map((song) => Dismissible(
-                    key: Key('song-${song.id}'),
-                    direction: isOwner ? DismissDirection.endToStart : DismissDirection.none,
-                    onDismissed: (_) => _removeSong(song.id),
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 16),
-                      color: AppTheme.error,
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    child: SongCard(song: song, showDuration: true),
-                  )),
+              ...playlist!.songs!.map(
+                (song) => Dismissible(
+                  key: Key('song-${song.id}'),
+                  direction: isOwner
+                      ? DismissDirection.endToStart
+                      : DismissDirection.none,
+                  onDismissed: (_) => _removeSong(song.id),
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 16),
+                    color: AppTheme.error,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: SongCard(song: song, showDuration: true),
+                ),
+              ),
           const SizedBox(height: 80),
         ],
       ),

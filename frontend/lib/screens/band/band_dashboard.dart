@@ -315,22 +315,46 @@ class _BandDashboardState extends State<BandDashboard> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: selectedBandId == null ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => UploadSongScreen(bandId: selectedBandId))),
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  UploadSongScreen(bandId: selectedBandId),
+                            ),
+                          ),
                     icon: const Icon(Icons.upload_rounded),
                     label: const Text('Upload'),
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null ? null : () {
-                      final band = bands.firstWhere((b) => b.id == selectedBandId);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => ManageMembersScreen(bandId: selectedBandId!, currentUserRole: band.roleInBand ?? 'member')));
-                    },
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () {
+                            final band = bands.firstWhere(
+                              (b) => b.id == selectedBandId,
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ManageMembersScreen(
+                                  bandId: selectedBandId!,
+                                  currentUserRole: band.roleInBand ?? 'member',
+                                ),
+                              ),
+                            );
+                          },
                     icon: const Icon(Icons.people_outline),
                     label: const Text('Members'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                    ),
                   ),
                 ),
               ],
@@ -341,19 +365,39 @@ class _BandDashboardState extends State<BandDashboard> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => ManageAlbumsScreen(bandId: selectedBandId!))),
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ManageAlbumsScreen(bandId: selectedBandId!),
+                            ),
+                          ),
                     icon: const Icon(Icons.album_outlined),
                     label: const Text('Albums'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => SongManagementScreen(bandId: selectedBandId!))),
+                    onPressed: selectedBandId == null
+                        ? null
+                        : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  SongManagementScreen(bandId: selectedBandId!),
+                            ),
+                          ),
                     icon: const Icon(Icons.library_music_outlined),
                     label: const Text('Songs'),
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                   ),
                 ),
               ],
@@ -361,10 +405,20 @@ class _BandDashboardState extends State<BandDashboard> {
             const SizedBox(height: 12),
             // Layout Row
             OutlinedButton.icon(
-              onPressed: selectedBandId == null ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => BandLayoutEditorScreen(bandId: selectedBandId!))),
+              onPressed: selectedBandId == null
+                  ? null
+                  : () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BandLayoutEditorScreen(bandId: selectedBandId!),
+                      ),
+                    ),
               icon: const Icon(Icons.dashboard_customize_outlined),
               label: const Text('Edit Profile Layout'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
             ),
           ],
           const SizedBox(height: 80),

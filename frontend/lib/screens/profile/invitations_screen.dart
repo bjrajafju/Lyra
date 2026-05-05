@@ -29,9 +29,9 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -42,17 +42,21 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(status == 'accepted' ? 'Joined the band!' : 'Invitation rejected'),
-            backgroundColor: status == 'accepted' ? AppTheme.success : AppTheme.error,
+            content: Text(
+              status == 'accepted' ? 'Joined the band!' : 'Invitation rejected',
+            ),
+            backgroundColor: status == 'accepted'
+                ? AppTheme.success
+                : AppTheme.error,
           ),
         );
       }
       _fetchInvitations();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -60,21 +64,19 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Band Invitations'),
-      ),
+      appBar: AppBar(title: const Text('Band Invitations')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _invitations.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: _invitations.length,
-                  itemBuilder: (context, index) {
-                    final invite = _invitations[index];
-                    return _buildInvitationCard(invite);
-                  },
-                ),
+          ? _buildEmptyState()
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              itemCount: _invitations.length,
+              itemBuilder: (context, index) {
+                final invite = _invitations[index];
+                return _buildInvitationCard(invite);
+              },
+            ),
     );
   }
 
@@ -83,7 +85,11 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.mail_outline, size: 80, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+          Icon(
+            Icons.mail_outline,
+            size: 80,
+            color: AppTheme.textMuted.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
           Text(
             'No pending invitations',
@@ -168,14 +174,16 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => _respond(invite['id'].toString(), 'rejected'),
+                  onPressed: () =>
+                      _respond(invite['id'].toString(), 'rejected'),
                   child: const Text('Decline'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => _respond(invite['id'].toString(), 'accepted'),
+                  onPressed: () =>
+                      _respond(invite['id'].toString(), 'accepted'),
                   child: const Text('Accept'),
                 ),
               ),

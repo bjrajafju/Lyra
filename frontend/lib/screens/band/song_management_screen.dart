@@ -33,7 +33,9 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -44,26 +46,36 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
       _loadSongs();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
 
   Future<void> _deleteSong(Song song) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Delete song?'),
-        content: Text('This will permanently remove "${song.title}".'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: AppTheme.error)),
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Delete song?'),
+            content: Text('This will permanently remove "${song.title}".'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: AppTheme.error),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
 
     if (!confirmed) return;
     try {
@@ -71,7 +83,9 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
       _loadSongs();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -103,9 +117,16 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.music_off_outlined, size: 80, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+          Icon(
+            Icons.music_off_outlined,
+            size: 80,
+            color: AppTheme.textMuted.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          const Text('No songs uploaded yet', style: TextStyle(color: AppTheme.textSecondary, fontSize: 18)),
+          const Text(
+            'No songs uploaded yet',
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 18),
+          ),
         ],
       ),
     );
@@ -132,13 +153,21 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 image: song.coverImage != null
-                    ? DecorationImage(image: NetworkImage(song.coverImage!), fit: BoxFit.cover)
+                    ? DecorationImage(
+                        image: NetworkImage(song.coverImage!),
+                        fit: BoxFit.cover,
+                      )
                     : null,
                 color: AppTheme.surfaceLight,
               ),
-              child: song.coverImage == null ? const Icon(Icons.music_note) : null,
+              child: song.coverImage == null
+                  ? const Icon(Icons.music_note)
+                  : null,
             ),
-            title: Text(song.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(
+              song.title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: Text(
               '${song.playCount} streams • ${song.likeCount} likes',
               style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
@@ -149,7 +178,9 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
                 if (value == 'edit') {
                   final updated = await Navigator.push<bool>(
                     context,
-                    MaterialPageRoute(builder: (_) => EditSongScreen(song: song)),
+                    MaterialPageRoute(
+                      builder: (_) => EditSongScreen(song: song),
+                    ),
                   );
                   if (updated == true) _loadSongs();
                 } else if (value == 'delete') {
@@ -158,7 +189,13 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
               },
               itemBuilder: (_) => [
                 const PopupMenuItem(value: 'edit', child: Text('Edit Info')),
-                const PopupMenuItem(value: 'delete', child: Text('Delete Song', style: TextStyle(color: AppTheme.error))),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text(
+                    'Delete Song',
+                    style: TextStyle(color: AppTheme.error),
+                  ),
+                ),
               ],
             ),
           ),
@@ -167,11 +204,18 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: (isPublished ? AppTheme.success : Colors.orange).withValues(alpha: 0.1),
+                  color: (isPublished ? AppTheme.success : Colors.orange)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: (isPublished ? AppTheme.success : Colors.orange).withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: (isPublished ? AppTheme.success : Colors.orange)
+                        .withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Text(
                   isPublished ? 'PUBLISHED' : 'DRAFT',
@@ -187,7 +231,11 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
                 children: [
                   Text(
                     isPublished ? 'Unpublish' : 'Publish',
-                    style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Switch.adaptive(

@@ -23,7 +23,9 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
 
   Future<void> _loadSongs() async {
     try {
-      final songs = await ContentService.getAlbumSongs(widget.album['id'].toString());
+      final songs = await ContentService.getAlbumSongs(
+        widget.album['id'].toString(),
+      );
       setState(() {
         _songs = songs;
         _isLoading = false;
@@ -36,20 +38,31 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
   Future<void> _saveOrder() async {
     setState(() => _isLoading = true);
     try {
-      final orders = _songs.asMap().entries.map((e) => {
-        'id': e.value['id'] as int,
-        'position': e.key + 1,
-      }).toList();
+      final orders = _songs
+          .asMap()
+          .entries
+          .map((e) => {'id': e.value['id'] as int, 'position': e.key + 1})
+          .toList();
 
-      await ContentService.reorderAlbumSongs(widget.album['id'].toString(), orders);
+      await ContentService.reorderAlbumSongs(
+        widget.album['id'].toString(),
+        orders,
+      );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order saved!'), backgroundColor: AppTheme.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Order saved!'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
         Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -63,7 +76,10 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
           if (_hasChanged)
             TextButton(
               onPressed: _isLoading ? null : _saveOrder,
-              child: const Text('SAVE', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'SAVE',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
         ],
       ),
@@ -75,9 +91,19 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
                   padding: EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: AppTheme.textMuted),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: AppTheme.textMuted,
+                      ),
                       SizedBox(width: 8),
-                      Text('Drag and drop to reorder tracks', style: TextStyle(color: AppTheme.textMuted, fontSize: 13)),
+                      Text(
+                        'Drag and drop to reorder tracks',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 13,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -116,7 +142,10 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
       child: ListTile(
         leading: Text(
           '${index + 1}',
-          style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textMuted),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textMuted,
+          ),
         ),
         title: Text(song['title'] ?? 'Untitled'),
         trailing: const Icon(Icons.drag_indicator, color: AppTheme.textMuted),

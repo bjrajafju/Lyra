@@ -17,9 +17,9 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
 
   Future<void> _create() async {
     if (titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title is required')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Title is required')));
       return;
     }
 
@@ -31,9 +31,9 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
         'is_public': isPublic,
       });
       if (res.statusCode == 201 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Playlist created!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Playlist created!')));
         Navigator.pop(context, true);
       }
     } catch (_) {
@@ -63,13 +63,18 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: descController,
-              decoration: const InputDecoration(labelText: 'Description (optional)'),
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+              ),
               maxLines: 3,
             ),
             const SizedBox(height: 20),
             SwitchListTile(
               title: const Text('Public Playlist'),
-              subtitle: const Text('Anyone can see this playlist', style: TextStyle(color: AppTheme.textMuted)),
+              subtitle: const Text(
+                'Anyone can see this playlist',
+                style: TextStyle(color: AppTheme.textMuted),
+              ),
               value: isPublic,
               onChanged: (val) => setState(() => isPublic = val),
               activeColor: AppTheme.primary,
@@ -80,7 +85,9 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : ElevatedButton(
                     onPressed: _create,
-                    style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
                     child: const Text('Create Playlist'),
                   ),
           ],
