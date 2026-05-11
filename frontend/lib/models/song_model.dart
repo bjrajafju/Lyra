@@ -7,6 +7,7 @@ class Song {
   final int? bandId;
   final int? albumId;
   final String? genre;
+  final List<dynamic>? genres;
   final String? description;
   final int playCount;
   final int duration;
@@ -24,6 +25,7 @@ class Song {
     this.bandId,
     this.albumId,
     this.genre,
+    this.genres,
     this.description,
     this.playCount = 0,
     this.duration = 0,
@@ -43,6 +45,7 @@ class Song {
       bandId: json['band_id'],
       albumId: json['album_id'],
       genre: json['genre'],
+      genres: json['genres'],
       description: json['description'],
       playCount: json['play_count'] ?? 0,
       duration: json['duration'] ?? 0,
