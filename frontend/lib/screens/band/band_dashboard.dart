@@ -12,6 +12,7 @@ import 'song_management_screen.dart';
 import 'manage_members_screen.dart';
 import 'manage_albums_screen.dart';
 import 'band_layout_editor_screen.dart';
+import 'band_profile_screen.dart';
 
 class BandDashboard extends StatefulWidget {
   const BandDashboard({super.key});

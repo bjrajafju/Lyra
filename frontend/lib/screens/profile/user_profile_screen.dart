@@ -6,6 +6,8 @@ import '../../models/song_model.dart';
 import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/band_provider.dart';
+import '../../widgets/context_switcher.dart';
 import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
@@ -97,7 +99,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const ProfileContextSwitcher(),
+        title: ProfileContextSwitcher(),
         actions: [
           if (isOwnProfile)
             IconButton(

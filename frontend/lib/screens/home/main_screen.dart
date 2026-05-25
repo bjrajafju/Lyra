@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/audio_provider.dart';
 import '../../providers/band_provider.dart';
+import '../../models/band_model.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/mini_player.dart';
 import '../../widgets/context_switcher.dart';
@@ -19,6 +20,8 @@ import '../band/band_profile_screen.dart';
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
+  static int globalBandIndex = 0;
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -26,7 +29,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   int _bandIndex = 0;
-  static int globalBandIndex = 0;
 
   final _tabs = const [
     DiscoveryTab(),
@@ -72,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           Expanded(
             child: isBandContext
-                ? _getBandScreen(globalBandIndex, selectedBand!)
+                ? _getBandScreen(MainScreen.globalBandIndex, selectedBand!)
                 : _tabs[_currentIndex],
           ),
           Consumer<AudioProvider>(
@@ -84,11 +86,11 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: isBandContext ? globalBandIndex : _currentIndex,
+        currentIndex: isBandContext ? MainScreen.globalBandIndex : _currentIndex,
         onTap: (index) {
           setState(() {
             if (isBandContext) {
-              globalBandIndex = index;
+              MainScreen.globalBandIndex = index;
             } else {
               _currentIndex = index;
             }
