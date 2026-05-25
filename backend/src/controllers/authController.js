@@ -170,3 +170,34 @@ export const deleteAccount = async (req, res) => {
         res.status(500).json({ message: "Server error deleting account" });
     }
 };
+
+export const getContext = async (req, res) => {
+    try {
+        const userResult = await query(
+            "SELECT id, username, email, profile_picture, bio, role FROM users WHERE id = $1",
+            [req.user.id],
+        );
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const bandsResult = await query(
+            `
+            SELECT b.id, b.name, b.profile_image, bm.role_in_band as role
+            FROM bands b
+            JOIN band_members bm ON b.id = bm.band_id
+            WHERE bm.user_id = $1 AND bm.role_in_band IN ('admin', 'editor')
+            ORDER BY b.name ASC
+        `,
+            [req.user.id],
+        );
+
+        res.json({
+            user: userResult.rows[0],
+            bands: bandsResult.rows,
+        });
+    } catch (error) {
+        console.error("Error fetching context:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

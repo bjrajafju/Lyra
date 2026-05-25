@@ -1,6 +1,7 @@
 import express from "express";
 import {
     getBandWidgets,
+    getPublicBandLayout,
     createWidget,
     updateWidget,
     deleteWidget,
@@ -11,7 +12,10 @@ import { protect, checkBandRole } from "../middleware/authMiddleware.js";
 const router = express.Router({ mergeParams: true });
 
 // Publicly viewable
-router.get("/", getBandWidgets);
+router.get("/", getPublicBandLayout);
+
+// Protected (requires Editor role)
+router.get("/all", protect, checkBandRole("editor"), getBandWidgets);
 
 // Protected (requires Editor role)
 router.post("/", protect, checkBandRole("editor"), createWidget);

@@ -117,10 +117,10 @@ CREATE TABLE album_songs (
 CREATE TABLE band_widgets (
     id SERIAL PRIMARY KEY,
     band_id INTEGER REFERENCES bands(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL CHECK (type IN ('popular_songs', 'albums', 'playlists', 'custom')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('latest_release', 'bio', 'social_links', 'featured_video', 'merch', 'popular_songs', 'albums', 'playlists', 'custom')),
     title VARCHAR(100),
     position INTEGER NOT NULL DEFAULT 0,
-    config JSONB DEFAULT '{}',
+    settings JSONB DEFAULT '{}',
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -107,8 +107,8 @@ export const addSongToPlaylist = async (req, res) => {
         }
 
         const songCheck = await query(
-            "SELECT id FROM songs WHERE id = $1 AND visibility = $2",
-            [song_id, "public"],
+            "SELECT id FROM songs WHERE id = $1 AND status = $2",
+            [song_id, "published"],
         );
         if (songCheck.rows.length === 0) {
             return res

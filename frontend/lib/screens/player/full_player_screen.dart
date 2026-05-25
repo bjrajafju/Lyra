@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import '../../providers/audio_provider.dart';
 import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
@@ -95,14 +95,11 @@ class FullPlayerScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: AspectRatio(
                             aspectRatio: 1,
-                            child: song.coverImage != null
-                                ? CachedNetworkImage(
-                                    imageUrl:
-                                        '${Constants.serverUrl}${song.coverImage}',
-                                    fit: BoxFit.cover,
-                                    errorWidget: (_, __, ___) => _defaultArt(),
-                                  )
-                                : _defaultArt(),
+                            child: SafeNetworkImage(
+                              imageUrl: song.coverImage,
+                              fit: BoxFit.cover,
+                              fallbackIcon: Icons.music_note,
+                            ),
                           ),
                         ),
                       ),

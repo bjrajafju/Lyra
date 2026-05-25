@@ -3,14 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
+import 'band_provider.dart';
 
 class AuthProvider with ChangeNotifier {
   User? _user;
   bool _hasCheckedAuth = false;
+  BandProvider? _bandProvider;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get hasCheckedAuth => _hasCheckedAuth;
+
+  void updateBandProvider(BandProvider bp) {
+    _bandProvider = bp;
+  }
 
   Future<bool> login(String email, String password) async {
     try {
@@ -25,6 +31,9 @@ class AuthProvider with ChangeNotifier {
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _user!.token);
+        if (_bandProvider != null) {
+          await _bandProvider!.fetchContext();
+        }
         notifyListeners();
         return true;
       } else {
@@ -58,6 +67,10 @@ class AuthProvider with ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', _user!.token);
 
+        if (_bandProvider != null) {
+          await _bandProvider!.fetchContext();
+        }
+
         notifyListeners();
         return true;
       } else {
@@ -74,6 +87,9 @@ class AuthProvider with ChangeNotifier {
     _user = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    if (_bandProvider != null) {
+      _bandProvider!.clearContext();
+    }
     notifyListeners();
   }
 
@@ -93,6 +109,9 @@ class AuthProvider with ChangeNotifier {
 
         // inject current token locally
         _user = User.fromJson(data);
+        if (_bandProvider != null) {
+          await _bandProvider!.fetchContext();
+        }
       } else {
         await logout();
       }

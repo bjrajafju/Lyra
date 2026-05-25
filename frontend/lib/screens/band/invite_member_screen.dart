@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../services/invitation_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/safe_network_image.dart';
 
 class InviteMemberScreen extends StatefulWidget {
   final int bandId;
@@ -244,7 +245,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
                   leading: CircleAvatar(
                     backgroundColor: AppTheme.surfaceLight,
                     backgroundImage: user['profile_picture'] != null
-                        ? NetworkImage(user['profile_picture'])
+                        ? SafeNetworkImage.getProvider(user['profile_picture'])
                         : null,
                     child: user['profile_picture'] == null
                         ? const Icon(Icons.person)

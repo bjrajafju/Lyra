@@ -27,7 +27,8 @@ router
         uploadSong,
     );
 
-router.get("/mine", protect, getMySongs); // Internal dashboard
+router.get("/mine", protect, checkBandRole("member"), getMySongs); // Internal dashboard
+router.get("/", getSongs); // List all songs (with optional filtering)
 router.get("/:id", getSongById);
 router.get("/:id/play", playSong);
 router.patch("/:id/status", protect, checkBandRole("editor"), toggleSongStatus);

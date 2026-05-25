@@ -3,6 +3,7 @@ import '../../services/content_service.dart';
 import '../../theme/app_theme.dart';
 import 'album_reorder_screen.dart';
 import 'create_album_screen.dart';
+import '../../widgets/safe_network_image.dart';
 
 class ManageAlbumsScreen extends StatefulWidget {
   final int bandId;
@@ -126,22 +127,12 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(23),
-                  ),
-                  image: album['cover_image'] != null
-                      ? DecorationImage(
-                          image: NetworkImage(album['cover_image']),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                  color: AppTheme.surfaceLight,
+              child: SafeNetworkImage(
+                imageUrl: album['cover_image'],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(23),
                 ),
-                child: album['cover_image'] == null
-                    ? const Center(child: Icon(Icons.album, size: 40))
-                    : null,
+                fallbackIcon: Icons.album,
               ),
             ),
             Padding(

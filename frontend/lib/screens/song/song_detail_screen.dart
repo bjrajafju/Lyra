@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import '../../models/song_model.dart';
 import '../../models/comment_model.dart';
 import '../../services/api_service.dart';
@@ -124,11 +124,9 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   if (song!.coverImage != null)
-                    CachedNetworkImage(
-                      imageUrl: '${Constants.serverUrl}${song!.coverImage}',
+                    SafeNetworkImage(
+                      imageUrl: song!.coverImage,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) =>
-                          Container(color: AppTheme.cardColor),
                     )
                   else
                     Container(

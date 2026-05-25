@@ -15,6 +15,8 @@ import {
 import { upload } from "../middleware/uploadMiddleware.js";
 import memberRoutes from "./memberRoutes.js";
 import widgetRoutes from "./widgetRoutes.js";
+import songRoutes from "./songRoutes.js";
+import albumRoutes from "./albumRoutes.js";
 
 const router = express.Router();
 
@@ -25,6 +27,18 @@ router.use("/:bandId/members", memberRoutes);
 
 // Nest widget management
 router.use("/:bandId/widgets", widgetRoutes);
+
+// Nest song management under band
+router.use("/:bandId/songs", (req, res, next) => {
+    req.query.bandId = req.params.bandId;
+    next();
+}, songRoutes);
+
+// Nest album management under band
+router.use("/:bandId/albums", (req, res, next) => {
+    req.query.bandId = req.params.bandId;
+    next();
+}, albumRoutes);
 
 router
     .route("/")

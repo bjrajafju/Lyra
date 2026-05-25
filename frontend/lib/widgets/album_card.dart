@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'safe_network_image.dart';
 import '../models/album_model.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
@@ -20,19 +20,12 @@ class AlbumCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
+            SafeNetworkImage(
+              imageUrl: album.coverImage,
+              width: 160,
+              height: 160,
               borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 160,
-                height: 160,
-                child: album.coverImage != null
-                    ? CachedNetworkImage(
-                        imageUrl: '${Constants.serverUrl}${album.coverImage}',
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _defaultCover(),
-                      )
-                    : _defaultCover(),
-              ),
+              fallbackIcon: Icons.album,
             ),
             const SizedBox(height: 8),
             Text(

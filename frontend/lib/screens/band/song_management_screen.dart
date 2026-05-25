@@ -3,6 +3,7 @@ import '../../models/song_model.dart';
 import '../../services/content_service.dart';
 import '../../theme/app_theme.dart';
 import '../song/edit_song_screen.dart';
+import '../../widgets/safe_network_image.dart';
 
 class SongManagementScreen extends StatefulWidget {
   final int bandId;
@@ -147,22 +148,12 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Container(
+            leading: SafeNetworkImage(
+              imageUrl: song.coverImage,
               width: 50,
               height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: song.coverImage != null
-                    ? DecorationImage(
-                        image: NetworkImage(song.coverImage!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-                color: AppTheme.surfaceLight,
-              ),
-              child: song.coverImage == null
-                  ? const Icon(Icons.music_note)
-                  : null,
+              borderRadius: BorderRadius.circular(12),
+              fallbackIcon: Icons.music_note,
             ),
             title: Text(
               song.title,

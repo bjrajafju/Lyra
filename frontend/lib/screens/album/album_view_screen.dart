@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import '../../models/album_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/audio_provider.dart';
@@ -61,10 +61,10 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
                 fit: StackFit.expand,
                 children: [
                   if (album!.coverImage != null)
-                    CachedNetworkImage(
-                      imageUrl: '${Constants.serverUrl}${album!.coverImage}',
+                    SafeNetworkImage(
+                      imageUrl: album!.coverImage,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => _defaultBg(),
+                      fallbackIcon: Icons.album,
                     )
                   else
                     _defaultBg(),

@@ -54,8 +54,14 @@ export const uploadSong = async (req, res) => {
         const song = newSongResult.rows[0];
 
         // Add genres
-        if (genre_ids && Array.isArray(genre_ids)) {
-            for (const genreId of genre_ids) {
+        let parsedGenreIds = genre_ids;
+        if (typeof genre_ids === "string") {
+            try {
+                parsedGenreIds = JSON.parse(genre_ids);
+            } catch (e) {}
+        }
+        if (parsedGenreIds && Array.isArray(parsedGenreIds)) {
+            for (const genreId of parsedGenreIds) {
                 await query(
                     "INSERT INTO songs_genres (song_id, genre_id) VALUES ($1, $2)",
                     [song.id, genreId],
@@ -256,10 +262,33 @@ export const updateSong = async (req, res) => {
         if (result.rows.length === 0)
             return res.status(404).json({ message: "Song not found" });
 
-        // Update genres if provided
-        if (genre_ids && Array.isArray(genre_ids)) {
+        const song = result.rows[0];
+
+        // Update album relation if provided
+        if (album_id !== undefined) {
+            // Remove from current albums (if system supports only one album per song)
+            await query("DELETE FROM album_songs WHERE song_id = $1", [id]);
+
+            if (album_id && album_id !== "" && album_id !== "null") {
+                const posResult = await query(
+                    "SELECT COALESCE(MAX(position), 0) + 1 as next_pos FROM album_songs WHERE album_id = $1",
+                    [album_id],
+                );
+                await query(
+                    "INSERT INTO album_songs (album_id, song_id, position) VALUES ($1, $2, $3)",
+                    [album_id, id, posResult.rows[0].next_pos],
+                );
+            }
+        }
+        let parsedGenreIds = genre_ids;
+        if (typeof genre_ids === "string") {
+            try {
+                parsedGenreIds = JSON.parse(genre_ids);
+            } catch (e) {}
+        }
+        if (parsedGenreIds && Array.isArray(parsedGenreIds)) {
             await query("DELETE FROM songs_genres WHERE song_id = $1", [id]);
-            for (const genreId of genre_ids) {
+            for (const genreId of parsedGenreIds) {
                 await query(
                     "INSERT INTO songs_genres (song_id, genre_id) VALUES ($1, $2)",
                     [id, genreId],

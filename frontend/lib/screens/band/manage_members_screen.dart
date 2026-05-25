@@ -4,6 +4,7 @@ import '../../services/band_member_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import 'invite_member_screen.dart';
+import '../../widgets/safe_network_image.dart';
 
 class ManageMembersScreen extends StatefulWidget {
   final int bandId;
@@ -212,11 +213,11 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
         border: Border.all(color: AppTheme.white05),
       ),
       child: ListTile(
-        onTap: () => _showRolePicker(member),
+        onTap: isMe ? null : () => _showRolePicker(member),
         leading: CircleAvatar(
           backgroundColor: AppTheme.surfaceLight,
           backgroundImage: member['profile_picture'] != null
-              ? NetworkImage(member['profile_picture'])
+              ? SafeNetworkImage.getProvider(member['profile_picture'])
               : null,
           child: member['profile_picture'] == null
               ? const Icon(Icons.person)

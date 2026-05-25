@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'safe_network_image.dart';
 import '../models/playlist_model.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
@@ -22,22 +22,15 @@ class PlaylistCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            ClipRRect(
+            SafeNetworkImage(
+              imageUrl: playlist.coverImage,
+              width: 70,
+              height: 70,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 bottomLeft: Radius.circular(12),
               ),
-              child: SizedBox(
-                width: 70,
-                height: 70,
-                child: playlist.coverImage != null
-                    ? CachedNetworkImage(
-                        imageUrl: '${Constants.serverUrl}${playlist.coverImage}',
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _defaultCover(),
-                      )
-                    : _defaultCover(),
-              ),
+              fallbackIcon: Icons.queue_music,
             ),
             const SizedBox(width: 14),
             Expanded(

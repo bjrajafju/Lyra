@@ -7,7 +7,7 @@ import '../providers/audio_provider.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
 import '../screens/song/song_detail_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'safe_network_image.dart';
 import '../services/api_service.dart';
 import '../models/playlist_model.dart';
 
@@ -58,19 +58,12 @@ class SongCard extends StatelessWidget {
           MaterialPageRoute(builder: (_) => SongDetailScreen(songId: song.id)),
         );
       },
-      leading: ClipRRect(
+      leading: SafeNetworkImage(
+        imageUrl: song.coverImage,
+        width: 50,
+        height: 50,
         borderRadius: BorderRadius.circular(6),
-        child: SizedBox(
-          width: 50,
-          height: 50,
-          child: song.coverImage != null
-              ? CachedNetworkImage(
-                  imageUrl: '${Constants.serverUrl}${song.coverImage}',
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => _defaultCover(),
-                )
-              : _defaultCover(),
-        ),
+        fallbackIcon: Icons.music_note,
       ),
       title: Text(
         song.title,

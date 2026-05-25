@@ -4,7 +4,7 @@ import '../providers/audio_provider.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
 import '../screens/player/full_player_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'safe_network_image.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -54,20 +54,12 @@ class MiniPlayer extends StatelessWidget {
                   child: Row(
                     children: [
                       const SizedBox(width: 8),
-                      ClipRRect(
+                      SafeNetworkImage(
+                        imageUrl: song.coverImage,
+                        width: 44,
+                        height: 44,
                         borderRadius: BorderRadius.circular(6),
-                        child: SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: song.coverImage != null
-                              ? CachedNetworkImage(
-                                  imageUrl:
-                                      '${Constants.serverUrl}${song.coverImage}',
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) => _defaultArt(),
-                                )
-                              : _defaultArt(),
-                        ),
+                        fallbackIcon: Icons.music_note,
                       ),
                       const SizedBox(width: 12),
                       Expanded(

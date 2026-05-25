@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
@@ -283,10 +283,10 @@ class _PlaylistViewScreenState extends State<PlaylistViewScreen> {
               fit: StackFit.expand,
               children: [
                 if (playlist!.coverImage != null)
-                  CachedNetworkImage(
-                    imageUrl: '${Constants.serverUrl}${playlist!.coverImage}',
+                  SafeNetworkImage(
+                    imageUrl: playlist!.coverImage,
                     fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => _defaultBg(),
+                    fallbackIcon: Icons.queue_music,
                   )
                 else
                   _defaultBg(),

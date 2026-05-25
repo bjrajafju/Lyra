@@ -14,9 +14,26 @@ export const getBandWidgets = async (req, res) => {
     }
 };
 
+export const getPublicBandLayout = async (req, res) => {
+    const { bandId } = req.params;
+    try {
+        // Publicly we only return active/valid widgets. 
+        // We might want to filter out draft or specific types if needed in the future.
+        // For now, return all widgets but exclude internal editor-only metadata if any.
+        const result = await query(
+            "SELECT id, type, settings, position FROM band_widgets WHERE band_id = $1 ORDER BY position ASC",
+            [bandId],
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching public layout" });
+    }
+};
+
 export const createWidget = async (req, res) => {
     const { bandId } = req.params;
-    const { type, config } = req.body;
+    const { type, settings } = req.body;
 
     try {
         const posResult = await query(
@@ -25,8 +42,8 @@ export const createWidget = async (req, res) => {
         );
 
         const result = await query(
-            "INSERT INTO band_widgets (band_id, type, config, position) VALUES ($1, $2, $3, $4) RETURNING *",
-            [bandId, type, config || {}, posResult.rows[0].next_pos],
+            "INSERT INTO band_widgets (band_id, type, settings, position) VALUES ($1, $2, $3, $4) RETURNING *",
+            [bandId, type, settings || {}, posResult.rows[0].next_pos],
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -37,16 +54,16 @@ export const createWidget = async (req, res) => {
 
 export const updateWidget = async (req, res) => {
     const { widgetId } = req.params;
-    const { config, position } = req.body;
+    const { settings, position } = req.body;
 
     try {
         let updateFields = ["updated_at = CURRENT_TIMESTAMP"];
         let params = [widgetId];
         let pIndex = 2;
 
-        if (config !== undefined) {
-            updateFields.push(`config = $${pIndex++}`);
-            params.push(JSON.stringify(config));
+        if (settings !== undefined) {
+            updateFields.push(`settings = $${pIndex++}`);
+            params.push(JSON.stringify(settings));
         }
         if (position !== undefined) {
             updateFields.push(`position = $${pIndex++}`);

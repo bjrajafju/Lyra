@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/invitation_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/safe_network_image.dart';
 
 class InvitationsScreen extends StatefulWidget {
   const InvitationsScreen({super.key});
@@ -117,22 +118,12 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
         children: [
           Row(
             children: [
-              Container(
+              SafeNetworkImage(
+                imageUrl: invite['band_image'],
                 width: 60,
                 height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: invite['band_image'] != null
-                      ? DecorationImage(
-                          image: NetworkImage(invite['band_image']),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                  color: AppTheme.surfaceLight,
-                ),
-                child: invite['band_image'] == null
-                    ? const Icon(Icons.groups, size: 30)
-                    : null,
+                borderRadius: BorderRadius.circular(16),
+                fallbackIcon: Icons.groups,
               ),
               const SizedBox(width: 16),
               Expanded(

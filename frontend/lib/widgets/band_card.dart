@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'safe_network_image.dart';
 import '../models/band_model.dart';
 import '../utils/constants.dart';
 import '../theme/app_theme.dart';
@@ -32,24 +32,12 @@ class BandCard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: ClipOval(
-                child: band.profileImage != null
-                    ? CachedNetworkImage(
-                        imageUrl: '${Constants.serverUrl}${band.profileImage}',
-                        fit: BoxFit.cover,
-                        placeholder: (_, __) => Container(
-                          color: AppTheme.surfaceLight,
-                          child: const Icon(Icons.group, size: 40, color: AppTheme.textMuted),
-                        ),
-                        errorWidget: (_, __, ___) => Container(
-                          color: AppTheme.surfaceLight,
-                          child: const Icon(Icons.group, size: 40, color: AppTheme.textMuted),
-                        ),
-                      )
-                    : Container(
-                        color: AppTheme.surfaceLight,
-                        child: const Icon(Icons.group, size: 40, color: AppTheme.textMuted),
-                      ),
+              child: SafeNetworkImage(
+                imageUrl: band.profileImage,
+                width: 130,
+                height: 130,
+                borderRadius: BorderRadius.circular(65),
+                fallbackIcon: Icons.group,
               ),
             ),
             const SizedBox(height: 10),

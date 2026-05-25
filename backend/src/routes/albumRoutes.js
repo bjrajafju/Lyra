@@ -1,17 +1,17 @@
 import express from 'express';
 import { createAlbum, getAlbums, getAlbumById, updateAlbum, deleteAlbum, reorderAlbumSongs } from '../controllers/albumController.js';
-import { protect, checkBandRole } from '../middleware/authMiddleware.js';
+import { protect, checkBandRole, optionalProtect } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
-router.route('/')
+router.route("/")
     .get(getAlbums)
-    .post(protect, checkBandRole('editor'), upload.fields([{ name: 'cover_image', maxCount: 1 }]), createAlbum);
+    .post(protect, upload.fields([{ name: 'cover_image', maxCount: 1 }]), checkBandRole('editor'), createAlbum);
 
 router.route('/:id')
-    .get(getAlbumById)
-    .put(protect, checkBandRole('editor'), upload.fields([{ name: 'cover_image', maxCount: 1 }]), updateAlbum)
+    .get(optionalProtect, getAlbumById)
+    .put(protect, upload.fields([{ name: 'cover_image', maxCount: 1 }]), checkBandRole('editor'), updateAlbum)
     .delete(protect, checkBandRole('admin'), deleteAlbum);
 
 router.patch('/:id/reorder', protect, checkBandRole('editor'), reorderAlbumSongs);

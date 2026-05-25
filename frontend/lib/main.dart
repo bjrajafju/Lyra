@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/audio_provider.dart';
+import 'providers/band_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/main_screen.dart';
@@ -18,7 +19,14 @@ class LyraApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => BandProvider()),
+        ChangeNotifierProxyProvider<BandProvider, AuthProvider>(
+          create: (_) => AuthProvider(),
+          update: (_, bandProvider, authProvider) {
+            authProvider!.updateBandProvider(bandProvider);
+            return authProvider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => AudioProvider()),
       ],
       child: MaterialApp(

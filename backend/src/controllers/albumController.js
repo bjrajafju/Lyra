@@ -59,18 +59,17 @@ export const getAlbumById = async (req, res) => {
         if (album.rows.length === 0)
             return res.status(404).json({ message: "Album not found" });
 
-        const songs = await query(
-            `
+        const songsSql = `
             SELECT s.*, b.name as band_name, als.position,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
             FROM songs s 
             JOIN album_songs als ON s.id = als.song_id
             JOIN bands b ON s.band_id = b.id 
-            WHERE als.album_id = $1 AND s.status = 'published'
+            WHERE als.album_id = $1
+            ${req.user ? "" : " AND s.status = 'published'"}
             ORDER BY als.position ASC
-        `,
-            [req.params.id],
-        );
+        `;
+        const songs = await query(songsSql, [req.params.id]);
 
         const result = album.rows[0];
         result.songs = songs.rows;

@@ -17,8 +17,24 @@ export const protect = (req, res, next) => {
             res.status(401).json({ message: "Not authorized, token failed" });
         }
     } else {
-        res.status(401).json({ message: "Not authorized, no token" });
+            res.status(401).json({ message: "Not authorized, no token" });
     }
+};
+
+export const optionalProtect = (req, res, next) => {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+    ) {
+        try {
+            const token = req.headers.authorization.split(" ")[1];
+            const decoded = verifyToken(token);
+            req.user = decoded;
+        } catch (error) {
+            // Silently fail for optional protect
+        }
+    }
+    next();
 };
 
 export const artistOnly = (req, res, next) => {
@@ -31,12 +47,42 @@ export const artistOnly = (req, res, next) => {
 
 export const checkBandRole = (requiredRole) => {
     return async (req, res, next) => {
-        const bandId =
+        let bandId =
             req.params.bandId ||
-            req.params.id ||
             req.query.bandId ||
-            (req.body ? req.body.band_id : null);
+            req.query.band_id ||
+            (req.body ? req.body.band_id || req.body.bandId : null);
         const userId = req.user.id;
+
+        // If bandId is not directly provided, try to infer it from resource ID
+        if (!bandId && req.params.id) {
+            const resourceId = req.params.id;
+            const path = req.baseUrl + req.path;
+
+            try {
+                if (path.includes("/songs")) {
+                    const songRes = await query(
+                        "SELECT band_id FROM songs WHERE id = $1",
+                        [resourceId],
+                    );
+                    if (songRes.rows.length > 0)
+                        bandId = songRes.rows[0].band_id;
+                } else if (path.includes("/albums")) {
+                    const albumRes = await query(
+                        "SELECT band_id FROM albums WHERE id = $1",
+                        [resourceId],
+                    );
+                    if (albumRes.rows.length > 0)
+                        bandId = albumRes.rows[0].band_id;
+                } else if (path.includes("/bands")) {
+                    // Check if the path is exactly /bands/:id or /bands/:id/...
+                    // If it's something like /bands/my-bands, req.params.id won't be set to a band ID
+                    bandId = resourceId;
+                }
+            } catch (error) {
+                console.error("Error inferring bandId:", error);
+            }
+        }
 
         if (!bandId) {
             return res.status(400).json({ message: "Band ID is required" });
