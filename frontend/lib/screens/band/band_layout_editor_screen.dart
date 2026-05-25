@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../models/widget_type.dart';
 import '../../services/layout_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/dynamic_widget_renderer.dart';
 
 class BandLayoutEditorScreen extends StatefulWidget {
   final int bandId;
@@ -36,13 +38,13 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
   Future<void> _saveLayout() async {
     setState(() => _isLoading = true);
     try {
-      final orders = _widgets
+      final widgetOrders = _widgets
           .asMap()
           .entries
           .map((e) => {'id': e.value['id'], 'position': e.key + 1})
           .toList();
 
-      await LayoutService.reorderWidgets(widget.bandId.toString(), orders);
+      await LayoutService.reorderWidgets(widget.bandId.toString(), widgetOrders);
       setState(() => _hasChanged = false);
       _fetchWidgets();
       if (mounted) {
@@ -74,23 +76,11 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          _widgetTypeTile(
-            'latest_release',
-            'Latest Release',
-            Icons.new_releases_outlined,
-          ),
-          _widgetTypeTile('bio', 'Band Biography', Icons.description_outlined),
-          _widgetTypeTile('social_links', 'Social Links', Icons.share_outlined),
-          _widgetTypeTile(
-            'featured_video',
-            'Featured Video',
-            Icons.videocam_outlined,
-          ),
-          _widgetTypeTile(
-            'merch',
-            'Merch Preview',
-            Icons.shopping_bag_outlined,
-          ),
+          ...WidgetType.values.map((type) => _widgetTypeTile(
+                type.code,
+                type.label,
+                type.icon,
+              )),
           const SizedBox(height: 24),
         ],
       ),
@@ -133,40 +123,44 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
   }
 
   void _configureWidget(dynamic widgetData) {
-    final type = widgetData['type'];
+    final typeCode = widgetData['type'] as String;
+    final type = WidgetType.fromCode(typeCode);
     final settings = Map<String, dynamic>.from(widgetData['settings'] ?? {});
-    final controller = TextEditingController(text: settings['content'] ?? '');
+    final titleController = TextEditingController(text: settings['title'] ?? '');
+    final contentController = TextEditingController(text: settings['content'] ?? '');
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          'Configure ${type.toString().replaceAll('_', ' ').toUpperCase()}',
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (type == 'bio')
+        title: Text('Configure ${type.label}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               TextField(
-                controller: controller,
-                maxLines: 4,
+                controller: titleController,
                 decoration: const InputDecoration(
-                  hintText: 'Enter band biography...',
+                  labelText: 'Custom Title (optional)',
+                  hintText: 'Leave empty for default',
                 ),
               ),
-            if (type == 'featured_video')
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  hintText: 'YouTube/Vimeo URL',
+              const SizedBox(height: 16),
+              if (type == WidgetType.bio)
+                TextField(
+                  controller: contentController,
+                  maxLines: 6,
+                  decoration: const InputDecoration(
+                    labelText: 'Biography Content',
+                    hintText: 'Enter band biography...',
+                  ),
                 ),
-              ),
-            if (type == 'social_links')
-              const Text(
-                'Social links will use profile data automatically.',
-                style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-              ),
-          ],
+              if (type == WidgetType.socialLinks)
+                const Text(
+                  'Social links will use profile data automatically.',
+                  style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -175,14 +169,33 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
-              settings['content'] = controller.text.trim();
-              await LayoutService.updateWidget(
-                widget.bandId.toString(),
-                widgetData['id'].toString(),
-                settings: settings,
-              );
-              Navigator.pop(context);
-              _fetchWidgets();
+              if (titleController.text.trim().isNotEmpty) {
+                settings['title'] = titleController.text.trim();
+              } else {
+                settings.remove('title');
+              }
+              
+              if (type == WidgetType.bio) {
+                settings['content'] = contentController.text.trim();
+              }
+
+              try {
+                await LayoutService.updateWidget(
+                  widget.bandId.toString(),
+                  widgetData['id'].toString(),
+                  settings: settings,
+                );
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  _fetchWidgets();
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
             },
             child: const Text('Save'),
           ),

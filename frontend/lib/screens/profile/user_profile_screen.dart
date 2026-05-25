@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import '../../models/song_model.dart';
 import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
@@ -13,6 +13,9 @@ import '../../widgets/playlist_card.dart';
 import '../playlist/playlist_view_screen.dart';
 import 'edit_profile_screen.dart';
 import 'invitations_screen.dart';
+import '../band/band_profile_screen.dart';
+import '../../models/band_model.dart';
+import '../band/create_band_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final int? userId;
@@ -28,6 +31,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Map<String, dynamic>? userProfile;
   List<Song> favorites = [];
   List<Playlist> playlists = [];
+  List<Band> bands = [];
   bool isLoading = true;
   bool isOwnProfile = false;
 
@@ -60,6 +64,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               .map((p) => Playlist.fromJson(p))
               .toList();
         }
+
+        final bandsRes = await ApiService.get('/bands/my-bands');
+        if (bandsRes.statusCode == 200) {
+          bands = (jsonDecode(bandsRes.body) as List)
+              .map((b) => Band.fromJson(b))
+              .toList();
+        }
       } else {
         final profileRes = await ApiService.get('/auth/user/${widget.userId}');
         if (profileRes.statusCode == 200)
@@ -78,9 +89,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (userProfile == null)
       return const Scaffold(body: Center(child: Text('User not found')));
 
+    final bandProvider = context.watch<BandProvider>();
+    // When in band context, this screen should probably show the band profile instead 
+    // or we should ensure we are not "stuck" here.
+    // However, the issue says "Personal Profile" selected -> opens personal artist profile page.
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        centerTitle: true,
+        title: const ProfileContextSwitcher(),
         actions: [
           if (isOwnProfile)
             IconButton(
@@ -121,9 +138,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               radius: 50,
               backgroundColor: AppTheme.surfaceLight,
               backgroundImage: userProfile!['profile_picture'] != null
-                  ? CachedNetworkImageProvider(
-                      '${Constants.serverUrl}${userProfile!['profile_picture']}',
-                    )
+                  ? SafeNetworkImage.getProvider(userProfile!['profile_picture'])
                   : null,
               child: userProfile!['profile_picture'] == null
                   ? Text(
@@ -229,6 +244,90 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ),
             ),
+          ],
+          if (isOwnProfile) ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Your Bands',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      final created = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CreateBandScreen(),
+                        ),
+                      );
+                      if (created == true) _loadData();
+                    },
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Create'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            if (bands.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'No bands yet.',
+                  style: TextStyle(color: AppTheme.textMuted),
+                ),
+              )
+            else
+              SizedBox(
+                height: 120,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: bands.length,
+                  itemBuilder: (ctx, i) {
+                    final band = bands[i];
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BandProfileScreen(bandId: band.id),
+                        ),
+                      ),
+                      child: Container(
+                        width: 100,
+                        margin: const EdgeInsets.only(right: 12),
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 35,
+                              backgroundImage: band.profileImage != null
+                                  ? NetworkImage(
+                                      '${Constants.baseUrl}${band.profileImage}',
+                                    )
+                                  : null,
+                              child: band.profileImage == null
+                                  ? const Icon(Icons.groups)
+                                  : null,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              band.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 12),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
           ],
           const SizedBox(height: 80),
         ],

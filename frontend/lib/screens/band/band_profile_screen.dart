@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../widgets/safe_network_image.dart';
 import '../../models/band_model.dart';
 import '../../models/song_model.dart';
 import '../../models/album_model.dart';
@@ -12,6 +12,7 @@ import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
 import '../../widgets/album_card.dart';
+import '../../widgets/dynamic_widget_renderer.dart';
 import '../album/album_view_screen.dart';
 
 class BandProfileScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
   Band? band;
   List<Song> songs = [];
   List<Album> albums = [];
+  List<dynamic> widgets = [];
   bool isLoading = true;
   bool isFollowing = false;
 
@@ -42,6 +44,7 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
       final albumsRes = await ApiService.get(
         '/albums?band_id=${widget.bandId}',
       );
+      final layoutRes = await ApiService.get('/bands/${widget.bandId}/widgets');
 
       if (bandRes.statusCode == 200) {
         band = Band.fromJson(jsonDecode(bandRes.body));
@@ -55,6 +58,9 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
         albums = (jsonDecode(albumsRes.body) as List)
             .map((a) => Album.fromJson(a))
             .toList();
+      }
+      if (layoutRes.statusCode == 200) {
+        widgets = jsonDecode(layoutRes.body);
       }
 
       // Check follow status
@@ -104,10 +110,10 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                 fit: StackFit.expand,
                 children: [
                   if (band!.bannerImage != null)
-                    CachedNetworkImage(
-                      imageUrl: '${Constants.serverUrl}${band!.bannerImage}',
+                    SafeNetworkImage(
+                      imageUrl: band!.bannerImage,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => _gradientBg(),
+                      fallbackIcon: Icons.image,
                     )
                   else
                     _gradientBg(),
@@ -118,7 +124,7 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppTheme.background.withValues(alpha: 0.9),
+                          AppTheme.background,
                         ],
                       ),
                     ),
@@ -127,183 +133,130 @@ class _BandProfileScreenState extends State<BandProfileScreen> {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile + stats row
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundColor: AppTheme.surfaceLight,
-                        backgroundImage: band!.profileImage != null
-                            ? CachedNetworkImageProvider(
-                                '${Constants.serverUrl}${band!.profileImage}',
-                              )
-                            : null,
-                        child: band!.profileImage == null
-                            ? const Icon(
-                                Icons.group,
-                                size: 30,
-                                color: AppTheme.textMuted,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                _StatItem(
-                                  '${band!.followerCount}',
-                                  'Followers',
-                                ),
-                                const SizedBox(width: 24),
-                                _StatItem('${band!.totalStreams}', 'Streams'),
-                                const SizedBox(width: 24),
-                                _StatItem('${songs.length}', 'Songs'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Follow + Play buttons
-                  Row(
-                    children: [
-                      if (context.read<AuthProvider>().isAuthenticated)
-                        OutlinedButton(
-                          onPressed: _toggleFollow,
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: isFollowing
-                                ? AppTheme.primary.withValues(alpha: 0.15)
-                                : null,
-                            side: BorderSide(
-                              color: isFollowing
-                                  ? AppTheme.primary
-                                  : AppTheme.textSecondary,
-                            ),
-                          ),
-                          child: Text(isFollowing ? 'Following' : 'Follow'),
-                        ),
-                      const SizedBox(width: 12),
-                      if (songs.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            context.read<AudioProvider>().playQueue(songs);
-                          },
-                          icon: const Icon(Icons.play_arrow_rounded),
-                          label: const Text('Play All'),
-                        ),
-                    ],
-                  ),
-                  if (band!.description != null &&
-                      band!.description!.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      band!.description!,
-                      style: const TextStyle(color: AppTheme.textSecondary),
-                    ),
-                  ],
-
-                  // Members
-                  if (band!.members != null && band!.members!.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Members',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: band!.members!
-                          .map(
-                            (m) => Chip(
-                              avatar: CircleAvatar(
-                                backgroundColor: AppTheme.primary,
-                                child: Text(
-                                  m.username[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                              label: Text(
-                                '${m.username} • ${m.role ?? "Member"}',
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
-
-                  // Albums
-                  if (albums.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Albums',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 210,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: albums.length,
-                        itemBuilder: (ctx, i) => AlbumCard(
-                          album: albums[i],
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  AlbumViewScreen(albumId: albums[i].id),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  // Songs
-                  const SizedBox(height: 24),
-                  Text(
-                    'Songs (${songs.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-          ),
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) =>
-                  SongCard(song: songs[index], showDuration: true),
-              childCount: songs.length,
-            ),
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileInfo(),
+                    const SizedBox(height: 16),
+                    _buildHeaderActions(),
+                    const SizedBox(height: 24),
+                    ..._buildWidgets(),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              ),
+            ]),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
     );
+  }
+
+  Widget _buildProfileInfo() {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 35,
+          backgroundColor: AppTheme.surfaceLight,
+          backgroundImage: band!.profileImage != null
+              ? SafeNetworkImage.getProvider(band!.profileImage)
+              : null,
+          child: band!.profileImage == null
+              ? const Icon(
+                  Icons.group,
+                  size: 30,
+                  color: AppTheme.textMuted,
+                )
+              : null,
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _StatItem(
+                    '${band!.followerCount}',
+                    'Followers',
+                  ),
+                  const SizedBox(width: 24),
+                  _StatItem('${band!.totalStreams}', 'Streams'),
+                  const SizedBox(width: 24),
+                  _StatItem('${songs.length}', 'Songs'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderActions() {
+    return Row(
+      children: [
+        if (context.read<AuthProvider>().isAuthenticated)
+          OutlinedButton(
+            onPressed: _toggleFollow,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: isFollowing
+                  ? AppTheme.primary.withValues(alpha: 0.15)
+                  : null,
+              side: BorderSide(
+                color: isFollowing
+                    ? AppTheme.primary
+                    : AppTheme.textSecondary,
+              ),
+            ),
+            child: Text(isFollowing ? 'Following' : 'Follow'),
+          ),
+        const SizedBox(width: 12),
+        if (songs.isNotEmpty)
+          ElevatedButton.icon(
+            onPressed: () {
+              context.read<AudioProvider>().playQueue(songs);
+            },
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: const Text('Play All'),
+          ),
+      ],
+    );
+  }
+
+  List<Widget> _buildWidgets() {
+    if (widgets.isEmpty) {
+      // Fallback to default layout if no widgets configured
+      return [
+        if (band!.description != null && band!.description!.isNotEmpty)
+          DynamicWidgetRenderer(
+            widgetData: const {'type': 'bio', 'settings': {'title': 'About'}},
+            band: band,
+          ),
+        DynamicWidgetRenderer(
+          widgetData: const {'type': 'popular_songs'},
+          songs: songs,
+        ),
+        if (albums.isNotEmpty)
+          DynamicWidgetRenderer(
+            widgetData: const {'type': 'albums'},
+            albums: albums,
+          ),
+      ];
+    }
+
+    return widgets
+        .map((w) => DynamicWidgetRenderer(
+              widgetData: w,
+              songs: songs,
+              albums: albums,
+              band: band,
+            ))
+        .toList();
   }
 
   Widget _gradientBg() {

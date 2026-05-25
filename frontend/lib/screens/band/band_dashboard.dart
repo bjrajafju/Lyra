@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/band_model.dart';
+import '../../providers/band_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
+import '../home/main_screen.dart';
 import 'upload_song_screen.dart';
 import 'create_band_screen.dart';
 import 'song_management_screen.dart';
@@ -18,31 +21,44 @@ class BandDashboard extends StatefulWidget {
 }
 
 class _BandDashboardState extends State<BandDashboard> {
-  List<Band> bands = [];
   Map<String, dynamic>? analytics;
   bool isLoading = true;
-  int? selectedBandId;
+  int? _lastBandId;
 
   @override
   void initState() {
     super.initState();
-    _loadBands();
+    // We'll load data in didChangeDependencies to handle the initial band
   }
 
-  Future<void> _loadBands() async {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bandProvider = context.watch<BandProvider>();
+    final currentBandId = bandProvider.selectedBand?.id;
+    
+    if (currentBandId != _lastBandId) {
+      _lastBandId = currentBandId;
+      // Use microtask or Future.delayed to avoid calling setState during build/dependencies change
+      Future.microtask(() => _loadData());
+    }
+  }
+
+  Future<void> _loadData() async {
+    if (!mounted) return;
+    final bandProvider = context.read<BandProvider>();
+    final bandId = bandProvider.selectedBand?.id;
+
+    if (bandId == null) {
+      if (mounted) setState(() => isLoading = false);
+      return;
+    }
+
+    setState(() => isLoading = true);
     try {
-      final res = await ApiService.get('/bands/my-bands');
-      if (res.statusCode == 200) {
-        bands = (jsonDecode(res.body) as List)
-            .map((b) => Band.fromJson(b))
-            .toList();
-        if (bands.isNotEmpty) {
-          selectedBandId = bands.first.id;
-          await _loadAnalytics(bands.first.id);
-        }
-      }
+      await _loadAnalytics(bandId);
     } catch (e) {
-      debugPrint('Error loading bands: $e');
+      debugPrint('Error loading analytics: $e');
     }
     if (mounted) setState(() => isLoading = false);
   }
@@ -61,10 +77,13 @@ class _BandDashboardState extends State<BandDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final bandProvider = context.watch<BandProvider>();
+    final selectedBand = bandProvider.selectedBand;
+
     if (isLoading) return const Center(child: CircularProgressIndicator());
 
     return RefreshIndicator(
-      onRefresh: _loadBands,
+      onRefresh: _loadData,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -72,19 +91,33 @@ class _BandDashboardState extends State<BandDashboard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Artist Dashboard',
+                'Band Dashboard',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               IconButton(
+                icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary),
+                onPressed: () async {
+                  final created = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CreateBandScreen(),
+                    ),
+                  );
+                  if (created == true) {
+                    final bandProvider = context.read<BandProvider>();
+                    await bandProvider.fetchContext();
+                  }
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.refresh, color: AppTheme.textSecondary),
-                onPressed: _loadBands,
+                onPressed: _loadData,
               ),
             ],
           ),
           const SizedBox(height: 16),
 
-          // Band selector
-          if (bands.isEmpty) ...[
+          if (selectedBand == null) ...[
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -94,83 +127,24 @@ class _BandDashboardState extends State<BandDashboard> {
               child: Column(
                 children: [
                   const Icon(
-                    Icons.group_add,
+                    Icons.groups_outlined,
                     size: 48,
                     color: AppTheme.primary,
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'No bands yet',
+                    'No band context selected',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Create a band to start uploading music',
+                    'Select a band from the switcher above',
                     style: TextStyle(color: AppTheme.textMuted),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final created = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CreateBandScreen(),
-                        ),
-                      );
-                      if (created == true) {
-                        setState(() => isLoading = true);
-                        _loadBands();
-                      }
-                    },
-                    child: const Text('Create Band'),
                   ),
                 ],
               ),
             ),
           ] else ...[
-            // Band tabs
-            if (bands.length > 1)
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: bands.length,
-                  itemBuilder: (ctx, i) {
-                    final band = bands[i];
-                    final isSelected = band.id == selectedBandId;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() => selectedBandId = band.id);
-                        _loadAnalytics(band.id);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.primary
-                              : AppTheme.surfaceLight,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          band.name,
-                          style: TextStyle(
-                            color: isSelected
-                                ? Colors.white
-                                : AppTheme.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            const SizedBox(height: 20),
-
             // Analytics grid
             if (analytics != null) ...[
               GridView.count(
@@ -315,15 +289,18 @@ class _BandDashboardState extends State<BandDashboard> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: selectedBandId == null
+                    onPressed: selectedBand == null
                         ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  UploadSongScreen(bandId: selectedBandId),
-                            ),
-                          ),
+                        : () {
+                            MainScreen.globalBandIndex = 1; // Go to Songs tab
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    UploadSongScreen(bandId: selectedBand.id),
+                              ),
+                            );
+                          },
                     icon: const Icon(Icons.upload_rounded),
                     label: const Text('Upload'),
                     style: ElevatedButton.styleFrom(
@@ -334,18 +311,16 @@ class _BandDashboardState extends State<BandDashboard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null
+                    onPressed: selectedBand == null
                         ? null
                         : () {
-                            final band = bands.firstWhere(
-                              (b) => b.id == selectedBandId,
-                            );
+                            MainScreen.globalBandIndex = 4; // Go to Members tab
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ManageMembersScreen(
-                                  bandId: selectedBandId!,
-                                  currentUserRole: band.roleInBand ?? 'member',
+                                  bandId: selectedBand.id,
+                                  currentUserRole: selectedBand.roleInBand ?? 'member',
                                 ),
                               ),
                             );
@@ -365,15 +340,18 @@ class _BandDashboardState extends State<BandDashboard> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null
+                    onPressed: selectedBand == null
                         ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ManageAlbumsScreen(bandId: selectedBandId!),
-                            ),
-                          ),
+                        : () {
+                            MainScreen.globalBandIndex = 2; // Go to Albums tab
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ManageAlbumsScreen(bandId: selectedBand.id),
+                              ),
+                            );
+                          },
                     icon: const Icon(Icons.album_outlined),
                     label: const Text('Albums'),
                     style: OutlinedButton.styleFrom(
@@ -384,15 +362,18 @@ class _BandDashboardState extends State<BandDashboard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: selectedBandId == null
+                    onPressed: selectedBand == null
                         ? null
-                        : () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  SongManagementScreen(bandId: selectedBandId!),
-                            ),
-                          ),
+                        : () {
+                            MainScreen.globalBandIndex = 1; // Go to Songs tab
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    SongManagementScreen(bandId: selectedBand.id),
+                              ),
+                            );
+                          },
                     icon: const Icon(Icons.library_music_outlined),
                     label: const Text('Songs'),
                     style: OutlinedButton.styleFrom(
@@ -403,17 +384,38 @@ class _BandDashboardState extends State<BandDashboard> {
               ],
             ),
             const SizedBox(height: 12),
-            // Layout Row
+    // Layout Row
             OutlinedButton.icon(
-              onPressed: selectedBandId == null
+              onPressed: selectedBand == null
                   ? null
                   : () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            BandLayoutEditorScreen(bandId: selectedBandId!),
+                            BandProfileScreen(bandId: selectedBand.id),
                       ),
                     ),
+              icon: const Icon(Icons.remove_red_eye_outlined),
+              label: const Text('View Public Profile'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Layout Editor
+            OutlinedButton.icon(
+              onPressed: selectedBand == null
+                  ? null
+                  : () {
+                      MainScreen.globalBandIndex = 3; // Go to Layout tab
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              BandLayoutEditorScreen(bandId: selectedBand.id),
+                        ),
+                      );
+                    },
               icon: const Icon(Icons.dashboard_customize_outlined),
               label: const Text('Edit Profile Layout'),
               style: OutlinedButton.styleFrom(
