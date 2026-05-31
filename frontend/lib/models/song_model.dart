@@ -15,6 +15,7 @@ class Song {
   final int playlistAdditions;
   final String? releaseDate;
   final String status;
+  final List<dynamic>? tags;
 
   Song({
     required this.id,
@@ -33,6 +34,7 @@ class Song {
     this.playlistAdditions = 0,
     this.releaseDate,
     this.status = 'published',
+    this.tags,
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
@@ -57,6 +59,7 @@ class Song {
           0,
       releaseDate: json['release_date'],
       status: json['status'] ?? 'published',
+      tags: json['tags'],
     );
   }
 }

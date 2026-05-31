@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/widget_type.dart';
 import '../../services/layout_service.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/dynamic_widget_renderer.dart';
+import 'band_profile_screen.dart';
 
 class BandLayoutEditorScreen extends StatefulWidget {
   final int bandId;
@@ -210,6 +210,18 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
       appBar: AppBar(
         title: const Text('Profile Editor'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.remove_red_eye_outlined, color: AppTheme.primary),
+            tooltip: 'View Public Profile',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BandProfileScreen(bandId: widget.bandId),
+                ),
+              );
+            },
+          ),
           if (_hasChanged)
             TextButton(
               onPressed: _isLoading ? null : _saveLayout,

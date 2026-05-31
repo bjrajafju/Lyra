@@ -1,14 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/song_model.dart';
 import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
-import '../../providers/auth_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
 import '../../widgets/playlist_card.dart';
-import '../band/band_dashboard.dart';
 import '../playlist/playlist_view_screen.dart';
 import '../playlist/create_playlist_screen.dart';
 
@@ -29,9 +26,7 @@ class _LibraryTabState extends State<LibraryTab>
   @override
   void initState() {
     super.initState();
-    final auth = context.read<AuthProvider>();
-    final isArtist = auth.user?.role == 'artist';
-    _tabController = TabController(length: isArtist ? 3 : 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _loadData();
   }
 
@@ -63,9 +58,6 @@ class _LibraryTabState extends State<LibraryTab>
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
-    final isArtist = auth.user?.role == 'artist';
-
     return Column(
       children: [
         TabBar(
@@ -73,10 +65,9 @@ class _LibraryTabState extends State<LibraryTab>
           indicatorColor: AppTheme.primary,
           labelColor: AppTheme.primary,
           unselectedLabelColor: AppTheme.textMuted,
-          tabs: [
-            const Tab(text: 'Favorites'),
-            const Tab(text: 'Playlists'),
-            if (isArtist) const Tab(text: 'Dashboard'),
+          tabs: const [
+            Tab(text: 'Favorites'),
+            Tab(text: 'Playlists'),
           ],
         ),
         Expanded(
@@ -194,9 +185,6 @@ class _LibraryTabState extends State<LibraryTab>
                         ),
                       ],
                     ),
-
-              // Dashboard (artist only)
-              if (isArtist) const BandDashboard(),
             ],
           ),
         ),

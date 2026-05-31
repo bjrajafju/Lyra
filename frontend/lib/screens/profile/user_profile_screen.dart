@@ -7,7 +7,6 @@ import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/band_provider.dart';
-import '../../widgets/context_switcher.dart';
 import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
@@ -37,10 +36,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   bool isLoading = true;
   bool isOwnProfile = false;
 
+  bool _firstLoad = true;
+  int? _lastBandId;
+
   @override
   void initState() {
     super.initState();
-    _loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bandProvider = context.watch<BandProvider>();
+    final currentBandId = bandProvider.selectedBand?.id;
+    if (_firstLoad || currentBandId != _lastBandId) {
+      _firstLoad = false;
+      _lastBandId = currentBandId;
+      // We load data asynchronously
+      Future.microtask(() => _loadData());
+    }
   }
 
   Future<void> _loadData() async {
@@ -91,15 +105,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (userProfile == null)
       return const Scaffold(body: Center(child: Text('User not found')));
 
-    final bandProvider = context.watch<BandProvider>();
-    // When in band context, this screen should probably show the band profile instead 
-    // or we should ensure we are not "stuck" here.
-    // However, the issue says "Personal Profile" selected -> opens personal artist profile page.
-    
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: ProfileContextSwitcher(),
+        title: const Text(
+          'Profile',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         actions: [
           if (isOwnProfile)
             IconButton(

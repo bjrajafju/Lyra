@@ -4,6 +4,7 @@ import '../../services/content_service.dart';
 import '../../theme/app_theme.dart';
 import '../song/edit_song_screen.dart';
 import '../../widgets/safe_network_image.dart';
+import 'upload_song_screen.dart';
 
 class SongManagementScreen extends StatefulWidget {
   final int bandId;
@@ -94,7 +95,25 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Music')),
+      appBar: AppBar(
+        title: const Text('Manage Music'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.upload_rounded, color: AppTheme.primary),
+            tooltip: 'Upload Track',
+            onPressed: () async {
+              final uploaded = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => UploadSongScreen(bandId: widget.bandId),
+                ),
+              );
+              if (uploaded == true) _loadSongs();
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

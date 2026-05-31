@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../models/song_model.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/constants.dart';
 
 class EditSongScreen extends StatefulWidget {
   final Song song;
@@ -35,6 +36,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
     _titleController.text = widget.song.title;
     _descriptionController.text = widget.song.description ?? '';
     _releaseDateController.text = widget.song.releaseDate ?? '';
+    _tagsController.text = widget.song.tags?.join(', ') ?? '';
     _status = widget.song.status;
     _albumId = widget.song.albumId;
     _loadInitialData();
@@ -201,7 +203,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int?>(
-            initialValue: _albumId,
+            value: (_albumId == null || !_albums.any((album) => album['id'] == _albumId)) ? null : _albumId,
             items: [
               const DropdownMenuItem<int?>(
                 value: null,
@@ -230,6 +232,35 @@ class _EditSongScreenState extends State<EditSongScreen> {
             decoration: const InputDecoration(labelText: 'Status'),
           ),
           const SizedBox(height: 14),
+          const Text('Cover Image', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          if (_coverFile != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.memory(
+                  _coverFile!.bytes!,
+                  height: 140,
+                  width: 140,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )
+          else if (widget.song.coverImage != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  Constants.imageUrl(widget.song.coverImage),
+                  height: 140,
+                  width: 140,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _pickCover,
             icon: const Icon(

@@ -92,12 +92,14 @@ class ContentService {
     required List<int> genreIds,
     required MultipartFileData audio,
     MultipartFileData? coverImage,
+    String? tags,
   }) async {
     final fields = {
       'band_id': bandId,
       'title': title,
       if (albumId != null) 'album_id': albumId,
       'genre_ids': jsonEncode(genreIds),
+      if (tags != null && tags.isNotEmpty) 'tags': tags,
     };
 
     final files = {

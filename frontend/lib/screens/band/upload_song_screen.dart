@@ -16,6 +16,7 @@ class UploadSongScreen extends StatefulWidget {
 class _UploadSongScreenState extends State<UploadSongScreen> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
+  final tagsController = TextEditingController();
 
   List<dynamic> _genres = [];
   List<int> _selectedGenreIds = [];
@@ -89,6 +90,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
         title: titleController.text.trim(),
         albumId: _selectedAlbumId?.toString(),
         genreIds: _selectedGenreIds,
+        tags: tagsController.text.trim(),
         audio: MultipartFileData(
           bytes: audioFile!.bytes,
           path: kIsWeb ? null : audioFile!.path,
@@ -155,6 +157,14 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                       validator: (v) =>
                           v == null || v.isEmpty ? 'Title is required' : null,
                     ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: tagsController,
+                      decoration: const InputDecoration(
+                        labelText: 'Tags (comma separated)',
+                        prefixIcon: Icon(Icons.tag_rounded),
+                      ),
+                    ),
                     const SizedBox(height: 24),
 
                     Text(
@@ -216,16 +226,16 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<int>(
-                      value: _selectedAlbumId,
+                    DropdownButtonFormField<int?>(
+                      value: (_selectedAlbumId == null || !_albums.any((a) => a['id'] == _selectedAlbumId)) ? null : _selectedAlbumId,
                       items: [
-                        const DropdownMenuItem(
+                        const DropdownMenuItem<int?>(
                           value: null,
                           child: Text('No Album'),
                         ),
                         ..._albums.map(
-                          (a) => DropdownMenuItem(
-                            value: a['id'],
+                          (a) => DropdownMenuItem<int?>(
+                            value: a['id'] as int?,
                             child: Text(a['title']),
                           ),
                         ),

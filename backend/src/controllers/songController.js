@@ -34,10 +34,23 @@ export const uploadSong = async (req, res) => {
             cover_image = `/uploads/images/${req.files.cover_image[0].filename}`;
         }
 
+        let parsedTags = null;
+        if (tags) {
+            if (typeof tags === "string") {
+                try {
+                    parsedTags = JSON.parse(tags);
+                } catch (e) {
+                    parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
+                }
+            } else if (Array.isArray(tags)) {
+                parsedTags = tags;
+            }
+        }
+
         const newSongResult = await query(
             `INSERT INTO songs 
-            (band_id, uploaded_by, title, description, audio_url, cover_image, duration, release_date, status) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+            (band_id, uploaded_by, title, description, audio_url, cover_image, duration, release_date, status, tags) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
             [
                 band_id,
                 uploaded_by,
@@ -48,6 +61,7 @@ export const uploadSong = async (req, res) => {
                 duration || 0,
                 release_date || null,
                 "draft",
+                parsedTags ? JSON.stringify(parsedTags) : null,
             ],
         );
 
@@ -99,6 +113,8 @@ export const getSongs = async (req, res) => {
     try {
         let sql = `
             SELECT s.*, b.name as band_name,
+            (SELECT json_agg(g.*) FROM genres g JOIN songs_genres sg ON g.id = sg.genre_id WHERE sg.song_id = s.id) as genres,
+            (SELECT album_id FROM album_songs WHERE song_id = s.id LIMIT 1) as album_id,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
             FROM songs s JOIN bands b ON s.band_id = b.id 
             WHERE s.status = 'published'
@@ -128,6 +144,8 @@ export const getMySongs = async (req, res) => {
         const result = await query(
             `
             SELECT s.*,
+            (SELECT json_agg(g.*) FROM genres g JOIN songs_genres sg ON g.id = sg.genre_id WHERE sg.song_id = s.id) as genres,
+            (SELECT album_id FROM album_songs WHERE song_id = s.id LIMIT 1) as album_id,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count,
             (SELECT COUNT(*) FROM favorites WHERE song_id = s.id) as favorite_count,
             (SELECT COUNT(*) FROM playlist_songs WHERE song_id = s.id) as playlist_additions
@@ -205,6 +223,7 @@ export const getSongById = async (req, res) => {
             `
             SELECT s.*, b.name as band_name,
             (SELECT json_agg(g.*) FROM genres g JOIN songs_genres sg ON g.id = sg.genre_id WHERE sg.song_id = s.id) as genres,
+            (SELECT album_id FROM album_songs WHERE song_id = s.id LIMIT 1) as album_id,
             (SELECT COUNT(*) FROM likes WHERE song_id = s.id) as like_count
             FROM songs s JOIN bands b ON s.band_id = b.id WHERE s.id = $1
         `,
@@ -222,7 +241,7 @@ export const getSongById = async (req, res) => {
 
 export const updateSong = async (req, res) => {
     const { id } = req.params;
-    const { title, description, genre_ids, tags, album_id, status } = req.body;
+    const { title, description, genre_ids, tags, album_id, status, release_date } = req.body;
 
     try {
         let updateFields = ["updated_at = CURRENT_TIMESTAMP"];
@@ -238,17 +257,32 @@ export const updateSong = async (req, res) => {
             params.push(description);
         }
         if (tags !== undefined) {
+            let parsedTags = null;
+            if (tags) {
+                if (typeof tags === "string") {
+                    try {
+                        parsedTags = JSON.parse(tags);
+                    } catch (e) {
+                        parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
+                    }
+                } else if (Array.isArray(tags)) {
+                    parsedTags = tags;
+                }
+            }
             updateFields.push(`tags = $${pIndex++}`);
-            params.push(JSON.stringify(tags));
+            params.push(parsedTags ? JSON.stringify(parsedTags) : null);
+        }
+        if (release_date !== undefined) {
+            updateFields.push(`release_date = $${pIndex++}`);
+            params.push(release_date || null);
+        } else if (status === "published") {
+            updateFields.push(
+                `release_date = COALESCE(release_date, CURRENT_DATE)`,
+            );
         }
         if (status) {
             updateFields.push(`status = $${pIndex++}`);
             params.push(status);
-            if (status === "published") {
-                updateFields.push(
-                    `release_date = COALESCE(release_date, CURRENT_DATE)`,
-                );
-            }
         }
 
         if (req.files && req.files.cover_image) {

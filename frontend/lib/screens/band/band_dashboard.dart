@@ -1,18 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/band_model.dart';
 import '../../providers/band_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
-import '../home/main_screen.dart';
-import 'upload_song_screen.dart';
 import 'create_band_screen.dart';
-import 'song_management_screen.dart';
-import 'manage_members_screen.dart';
-import 'manage_albums_screen.dart';
-import 'band_layout_editor_screen.dart';
-import 'band_profile_screen.dart';
 
 class BandDashboard extends StatefulWidget {
   const BandDashboard({super.key});
@@ -283,146 +275,6 @@ class _BandDashboardState extends State<BandDashboard> {
                     ),
                   ),
             ],
-
-            const SizedBox(height: 24),
-            // Primary Actions Row
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: selectedBand == null
-                        ? null
-                        : () {
-                            MainScreen.globalBandIndex = 1; // Go to Songs tab
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    UploadSongScreen(bandId: selectedBand.id),
-                              ),
-                            );
-                          },
-                    icon: const Icon(Icons.upload_rounded),
-                    label: const Text('Upload'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: selectedBand == null
-                        ? null
-                        : () {
-                            MainScreen.globalBandIndex = 4; // Go to Members tab
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ManageMembersScreen(
-                                  bandId: selectedBand.id,
-                                  currentUserRole: selectedBand.roleInBand ?? 'member',
-                                ),
-                              ),
-                            );
-                          },
-                    icon: const Icon(Icons.people_outline),
-                    label: const Text('Members'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Secondary Actions Row
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: selectedBand == null
-                        ? null
-                        : () {
-                            MainScreen.globalBandIndex = 2; // Go to Albums tab
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ManageAlbumsScreen(bandId: selectedBand.id),
-                              ),
-                            );
-                          },
-                    icon: const Icon(Icons.album_outlined),
-                    label: const Text('Albums'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: selectedBand == null
-                        ? null
-                        : () {
-                            MainScreen.globalBandIndex = 1; // Go to Songs tab
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    SongManagementScreen(bandId: selectedBand.id),
-                              ),
-                            );
-                          },
-                    icon: const Icon(Icons.library_music_outlined),
-                    label: const Text('Songs'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-    // Layout Row
-            OutlinedButton.icon(
-              onPressed: selectedBand == null
-                  ? null
-                  : () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            BandProfileScreen(bandId: selectedBand.id),
-                      ),
-                    ),
-              icon: const Icon(Icons.remove_red_eye_outlined),
-              label: const Text('View Public Profile'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Layout Editor
-            OutlinedButton.icon(
-              onPressed: selectedBand == null
-                  ? null
-                  : () {
-                      MainScreen.globalBandIndex = 3; // Go to Layout tab
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              BandLayoutEditorScreen(bandId: selectedBand.id),
-                        ),
-                      );
-                    },
-              icon: const Icon(Icons.dashboard_customize_outlined),
-              label: const Text('Edit Profile Layout'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-              ),
-            ),
           ],
           const SizedBox(height: 80),
         ],

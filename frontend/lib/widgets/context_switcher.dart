@@ -34,7 +34,7 @@ class ProfileContextSwitcher extends StatelessWidget {
             CircleAvatar(
               radius: 12,
               backgroundImage: (bandProvider.selectedBand?.profileImage ?? user.profilePicture) != null
-                  ? NetworkImage('${Constants.baseUrl}${bandProvider.selectedBand?.profileImage ?? user.profilePicture}')
+                  ? NetworkImage(Constants.imageUrl(bandProvider.selectedBand?.profileImage ?? user.profilePicture))
                   : null,
               child: (bandProvider.selectedBand?.profileImage ?? user.profilePicture) == null
                   ? const Icon(Icons.person, size: 16)
@@ -50,22 +50,27 @@ class ProfileContextSwitcher extends StatelessWidget {
         ),
       ),
       onSelected: (band) {
-        bandProvider.selectBand(band);
-        if (band != null) {
-          MainScreen.globalBandIndex = 0; // Reset to dashboard when switching bands
+        if (band?.id == -1) {
+          bandProvider.selectBand(null);
+        } else {
+          bandProvider.selectBand(band);
+          if (band != null) {
+            MainScreen.globalBandIndex = 0; // Reset to dashboard when switching bands
+          }
         }
       },
       itemBuilder: (context) {
+        final personalBandSentinel = Band(id: -1, name: 'Personal Profile');
         return [
           // Personal Profile
           PopupMenuItem<Band?>(
-            value: null,
+            value: personalBandSentinel,
             child: Row(
               children: [
                 CircleAvatar(
                   radius: 14,
                   backgroundImage: user.profilePicture != null
-                      ? NetworkImage('${Constants.baseUrl}${user.profilePicture}')
+                      ? NetworkImage(Constants.imageUrl(user.profilePicture))
                       : null,
                   child: user.profilePicture == null ? const Icon(Icons.person, size: 18) : null,
                 ),
@@ -98,7 +103,7 @@ class ProfileContextSwitcher extends StatelessWidget {
                       CircleAvatar(
                         radius: 14,
                         backgroundImage: band.profileImage != null
-                            ? NetworkImage('${Constants.baseUrl}${band.profileImage}')
+                            ? NetworkImage(Constants.imageUrl(band.profileImage))
                             : null,
                         child: band.profileImage == null ? const Icon(Icons.groups, size: 18) : null,
                       ),
