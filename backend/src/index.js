@@ -11,6 +11,7 @@ import albumRoutes from "./routes/albumRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import invitationRoutes from "./routes/invitationRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/api/albums", albumRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/invitations", invitationRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok", message: "Lyra API is running" });

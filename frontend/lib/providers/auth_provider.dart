@@ -122,4 +122,20 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> refreshUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final res = await ApiService.get('/auth/profile');
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        data['token'] = token;
+        _user = User.fromJson(data);
+        notifyListeners();
+      }
+    } catch (e) {
+      print('[REFRESH_USER] ERRO: $e');
+    }
+  }
 }

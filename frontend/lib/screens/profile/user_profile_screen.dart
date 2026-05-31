@@ -7,7 +7,6 @@ import '../../models/playlist_model.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/band_provider.dart';
-import '../../utils/constants.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/song_card.dart';
 import '../../widgets/playlist_card.dart';
@@ -316,16 +315,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         margin: const EdgeInsets.only(right: 12),
                         child: Column(
                           children: [
-                            CircleAvatar(
-                              radius: 35,
-                              backgroundImage: band.profileImage != null
-                                  ? NetworkImage(
-                                      '${Constants.baseUrl}${band.profileImage}',
-                                    )
-                                  : null,
-                              child: band.profileImage == null
-                                  ? const Icon(Icons.groups)
-                                  : null,
+                            Container(
+                              width: 70,
+                              height: 70,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: SafeNetworkImage(
+                                imageUrl: band.profileImage,
+                                width: 70,
+                                height: 70,
+                                fallbackIcon: Icons.groups,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
