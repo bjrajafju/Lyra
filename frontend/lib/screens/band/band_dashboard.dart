@@ -84,7 +84,7 @@ class _BandDashboardState extends State<BandDashboard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Band Dashboard',
+                'Painel da Banda',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -126,12 +126,12 @@ class _BandDashboardState extends State<BandDashboard> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'No band context selected',
+                    'Nenhum contexto de banda selecionado',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Select a band from the switcher above',
+                    'Selecione uma banda no seletor acima',
                     style: TextStyle(color: AppTheme.textMuted),
                   ),
                 ],
@@ -149,25 +149,25 @@ class _BandDashboardState extends State<BandDashboard> {
                 childAspectRatio: 1.6,
                 children: [
                   _MetricCard(
-                    label: 'Monthly Listeners',
+                    label: 'Ouvintes Mensais',
                     value: '${analytics!['monthly_listeners'] ?? 0}',
                     icon: Icons.people_outline,
                     color: AppTheme.primary,
                   ),
                   _MetricCard(
-                    label: 'Total Streams',
+                    label: 'Reproduções Totais',
                     value: '${analytics!['total_streams'] ?? 0}',
                     icon: Icons.play_arrow_rounded,
                     color: const Color(0xFF4FC3F7),
                   ),
                   _MetricCard(
-                    label: 'Total Likes',
+                    label: 'Curtidas Totais',
                     value: '${analytics!['total_likes'] ?? 0}',
                     icon: Icons.thumb_up_outlined,
                     color: const Color(0xFFFF7043),
                   ),
                   _MetricCard(
-                    label: 'Followers',
+                    label: 'Seguidores',
                     value: '${analytics!['total_followers'] ?? 0}',
                     icon: Icons.favorite_border,
                     color: const Color(0xFFBA68C8),
@@ -179,14 +179,14 @@ class _BandDashboardState extends State<BandDashboard> {
                 children: [
                   Expanded(
                     child: _SmallMetric(
-                      label: 'Playlist Adds',
+                      label: 'Adições à Playlist',
                       value: '${analytics!['playlist_additions'] ?? 0}',
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _SmallMetric(
-                      label: 'New Followers (30d)',
+                      label: 'Novos Seguidores (30d)',
                       value: '${analytics!['new_followers_30d'] ?? 0}',
                     ),
                   ),
@@ -216,7 +216,7 @@ class _BandDashboardState extends State<BandDashboard> {
                 (analytics!['top_songs'] as List).isNotEmpty) ...[
               const SizedBox(height: 24),
               const Text(
-                'Top Songs',
+                'Melhores Músicas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -253,7 +253,7 @@ class _BandDashboardState extends State<BandDashboard> {
                 (analytics!['recent_activity'] as List).isNotEmpty) ...[
               const SizedBox(height: 18),
               const Text(
-                'Recent Activity',
+                'Atividade Recente',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),

@@ -60,7 +60,7 @@ class ProfileContextSwitcher extends StatelessWidget {
         }
       },
       itemBuilder: (context) {
-        final personalBandSentinel = Band(id: -1, name: 'Personal Profile');
+        final personalBandSentinel = Band(id: -1, name: 'Perfil Pessoal');
         return [
           // Personal Profile
           PopupMenuItem<Band?>(
@@ -80,7 +80,7 @@ class ProfileContextSwitcher extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(user.username, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const Text('Personal Artist Profile', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Text('Perfil de Artista Pessoal', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -94,7 +94,7 @@ class ProfileContextSwitcher extends StatelessWidget {
           if (bandProvider.managedBands.isNotEmpty) ...[
             const PopupMenuItem(
               enabled: false,
-              child: Text('MANAGE BANDS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
+              child: Text('GERIR BANDAS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
             ),
             ...bandProvider.managedBands.map((band) => PopupMenuItem<Band?>(
                   value: band,

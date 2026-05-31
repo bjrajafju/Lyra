@@ -96,11 +96,11 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Music'),
+        title: const Text('Gerir Músicas'),
         actions: [
           IconButton(
             icon: const Icon(Icons.upload_rounded, color: AppTheme.primary),
-            tooltip: 'Upload Track',
+            tooltip: 'Lançar Faixa',
             onPressed: () async {
               final uploaded = await Navigator.push<bool>(
                 context,
@@ -240,7 +240,7 @@ class _SongManagementScreenState extends State<SongManagementScreen> {
               Row(
                 children: [
                   Text(
-                    isPublished ? 'Unpublish' : 'Publish',
+                    isPublished ? 'Despublicar' : 'Publicar',
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppTheme.textSecondary,

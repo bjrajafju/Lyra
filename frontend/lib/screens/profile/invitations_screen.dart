@@ -44,7 +44,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              status == 'accepted' ? 'Joined the band!' : 'Invitation rejected',
+              status == 'accepted' ? 'Juntou-se à banda!' : 'Convite rejeitado',
             ),
             backgroundColor: status == 'accepted'
                 ? AppTheme.success
@@ -65,7 +65,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Band Invitations')),
+      appBar: AppBar(title: const Text('Convites de Banda')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _invitations.isEmpty
@@ -93,7 +93,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No pending invitations',
+            'Sem convites pendentes',
             style: TextStyle(
               color: AppTheme.textSecondary,
               fontSize: 18,
@@ -167,7 +167,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                 child: OutlinedButton(
                   onPressed: () =>
                       _respond(invite['id'].toString(), 'rejected'),
-                  child: const Text('Decline'),
+                  child: const Text('Recusar'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -175,7 +175,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                 child: ElevatedButton(
                   onPressed: () =>
                       _respond(invite['id'].toString(), 'accepted'),
-                  child: const Text('Accept'),
+                  child: const Text('Aceitar'),
                 ),
               ),
             ],

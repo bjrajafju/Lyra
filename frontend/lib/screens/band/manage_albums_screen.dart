@@ -100,7 +100,7 @@ class _ManageAlbumsScreenState extends State<ManageAlbumsScreen> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'No albums created yet',
+            'Ainda Não Foram Criados Albums',
             style: TextStyle(color: AppTheme.textSecondary, fontSize: 18),
           ),
         ],

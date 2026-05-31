@@ -49,7 +49,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Playlist')),
+      appBar: AppBar(title: const Text('Nova Playlist')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -57,22 +57,22 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(labelText: 'Playlist Name'),
+              decoration: const InputDecoration(labelText: 'Nome da Playlist'),
               autofocus: true,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descController,
               decoration: const InputDecoration(
-                labelText: 'Description (optional)',
+                labelText: 'Descrição (opcional)',
               ),
               maxLines: 3,
             ),
             const SizedBox(height: 20),
             SwitchListTile(
-              title: const Text('Public Playlist'),
+              title: const Text('Playlist Pública'),
               subtitle: const Text(
-                'Anyone can see this playlist',
+                'Qualquer pessoa pode ver esta playlist',
                 style: TextStyle(color: AppTheme.textMuted),
               ),
               value: isPublic,
@@ -88,7 +88,7 @@ class _CreatePlaylistScreenState extends State<CreatePlaylistScreen> {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    child: const Text('Create Playlist'),
+                    child: const Text('Criar Playlist'),
                   ),
           ],
         ),

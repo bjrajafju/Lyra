@@ -156,8 +156,8 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
               TextField(
                 controller: titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Custom Title (optional)',
-                  hintText: 'Leave empty for default',
+                  labelText: 'Título Costumizado (opcional)',
+                  hintText: 'Deixar vazio para padrão',
                 ),
               ),
               const SizedBox(height: 16),
@@ -224,7 +224,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Editor'),
+        title: const Text('Editor de Perfil'),
         actions: [
           IconButton(
             icon: const Icon(Icons.remove_red_eye_outlined, color: AppTheme.primary),
@@ -398,7 +398,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
               IconButton(
                 icon: const Icon(Icons.edit, color: AppTheme.primary, size: 20),
                 onPressed: _editBandName,
-                tooltip: 'Edit Band Name',
+                tooltip: 'Editar Nome da Banda',
               ),
             ],
           ),
@@ -407,7 +407,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'PROFILE WIDGETS',
+            'WIDGETS DO PERFIL',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
@@ -523,12 +523,12 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Band Name'),
+        title: const Text('Editar Nome da Banda'),
         content: TextField(
           controller: nameController,
           decoration: const InputDecoration(
-            labelText: 'Band Name',
-            hintText: 'Enter band name',
+            labelText: 'Noma da Banda',
+            hintText: 'Inserir Nome da Banda',
           ),
         ),
         actions: [
@@ -551,7 +551,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Band name updated!'), backgroundColor: AppTheme.success),
+                      const SnackBar(content: Text('Nome da Banda Atualizado!'), backgroundColor: AppTheme.success),
                     );
                   }
                   await _fetchWidgets();
@@ -559,7 +559,7 @@ class _BandLayoutEditorScreenState extends State<BandLayoutEditorScreen> {
                     await context.read<BandProvider>().fetchContext();
                   }
                 } else {
-                  throw Exception('Failed to update band name');
+                  throw Exception('Falha ao Atualizar Nome da Banda');
                 }
               } catch (e) {
                 if (context.mounted) {

@@ -162,7 +162,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
             maxLines: 3,
           ),
           const SizedBox(height: 12),
-          const Text('Genres', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Géneros', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           _isLoadingGenres
               ? const Center(child: LinearProgressIndicator())
@@ -207,7 +207,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
             items: [
               const DropdownMenuItem<int?>(
                 value: null,
-                child: Text('No album'),
+                child: Text('Sem Album'),
               ),
               ..._albums.map(
                 (album) => DropdownMenuItem<int?>(
@@ -223,8 +223,8 @@ class _EditSongScreenState extends State<EditSongScreen> {
           DropdownButtonFormField<String>(
             value: _status,
             items: const [
-              DropdownMenuItem(value: 'draft', child: Text('Draft')),
-              DropdownMenuItem(value: 'published', child: Text('Published')),
+              DropdownMenuItem(value: 'draft', child: Text('Rascunho')),
+              DropdownMenuItem(value: 'published', child: Text('Publicada')),
             ],
             onChanged: (val) {
               if (val != null) setState(() => _status = val);
@@ -232,7 +232,7 @@ class _EditSongScreenState extends State<EditSongScreen> {
             decoration: const InputDecoration(labelText: 'Status'),
           ),
           const SizedBox(height: 14),
-          const Text('Cover Image', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Imagem de Capa', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           if (_coverFile != null)
             Align(

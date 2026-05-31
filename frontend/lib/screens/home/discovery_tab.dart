@@ -78,7 +78,7 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
                 ),
                 const SizedBox(width: 10),
                 const Text(
-                  'Discover',
+                  'Descobrir',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -90,7 +90,7 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
               child: Text(
-                '🔥 Trending Now',
+                '🔥 Em destaque',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
@@ -102,7 +102,7 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
-                'Artists For You',
+                'Artistas para ti',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
@@ -130,7 +130,7 @@ class _DiscoveryTabState extends State<DiscoveryTab> {
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
               child: Text(
-                '✨ New Releases',
+                '✨ Novos lançamentos',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),

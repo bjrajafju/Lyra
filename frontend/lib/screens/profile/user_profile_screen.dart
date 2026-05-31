@@ -108,7 +108,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Profile',
+          'Perfil',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
@@ -219,7 +219,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Favourite Songs',
+                'Músicas Favoritas',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -230,7 +230,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextButton(
                   onPressed: () {},
-                  child: Text('See all ${favorites.length} favorites'),
+                  child: Text('Ver todos os ${favorites.length} favoritos'),
                 ),
               ),
           ],
@@ -241,7 +241,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Your Playlists',
+                'As Tuas Playlists',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -266,7 +266,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Your Bands',
+                    'As Tuas Bandas',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton.icon(
@@ -280,7 +280,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       if (created == true) _loadData();
                     },
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Create'),
+                    label: const Text('Criar'),
                   ),
                 ],
               ),
@@ -290,7 +290,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'No bands yet.',
+                  'Ainda não há bandas.',
                   style: TextStyle(color: AppTheme.textMuted),
                 ),
               )

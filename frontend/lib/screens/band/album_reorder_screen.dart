@@ -98,7 +98,7 @@ class _AlbumReorderScreenState extends State<AlbumReorderScreen> {
                       ),
                       SizedBox(width: 8),
                       Text(
-                        'Drag and drop to reorder tracks',
+                        'Arraste e solte para reordenar as faixas',
                         style: TextStyle(
                           color: AppTheme.textMuted,
                           fontSize: 13,

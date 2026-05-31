@@ -39,7 +39,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Band name is required')));
+      ).showSnackBar(const SnackBar(content: Text('Nome da Banda é orbigatório')));
       return;
     }
 
@@ -121,7 +121,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create New Band')),
+      appBar: AppBar(title: const Text('Criar nova banda')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -130,7 +130,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Band Name*',
+                labelText: 'Nome da Banda*',
                 prefixIcon: Icon(Icons.group),
               ),
               autofocus: true,
@@ -139,7 +139,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
             TextField(
               controller: _descController,
               decoration: const InputDecoration(
-                labelText: 'Description (optional)',
+                labelText: 'Descrição (opcional)',
                 prefixIcon: Icon(Icons.description),
               ),
               maxLines: 3,
@@ -149,7 +149,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
             // Profile image picker
             _ImagePicker(
               label: _profileImage == null
-                  ? 'Pick Profile Image (Optional)'
+                  ? 'Escolher Foto de Perfil (Opcional)'
                   : _profileImage!.name,
               icon: Icons.person_add_alt_1,
               onTap: () => _pickImage(true),
@@ -160,7 +160,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
             // Banner image picker
             _ImagePicker(
               label: _bannerImage == null
-                  ? 'Pick Banner Image (Optional)'
+                  ? 'Escolher Imagem do Banner (Opcional)'
                   : _bannerImage!.name,
               icon: Icons.image,
               onTap: () => _pickImage(false),
@@ -173,7 +173,7 @@ class _CreateBandScreenState extends State<CreateBandScreen> {
                 : ElevatedButton.icon(
                     onPressed: _createBand,
                     icon: const Icon(Icons.add),
-                    label: const Text('Create Band'),
+                    label: const Text('Criar Banda'),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(52),
                     ),

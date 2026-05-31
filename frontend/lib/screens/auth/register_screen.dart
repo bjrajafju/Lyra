@@ -41,49 +41,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Registration failed')));
+      ).showSnackBar(const SnackBar(content: Text('Falha no registo')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: const Text('Registar')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             TextField(
               controller: userController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Nome de utilizador'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'E-mail'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Palavra-passe'),
               obscureText: true,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: role,
               items: const [
-                DropdownMenuItem(value: 'listener', child: Text('Listener')),
-                DropdownMenuItem(value: 'artist', child: Text('Artist/Band')),
+                DropdownMenuItem(value: 'listener', child: Text('Ouvinte')),
+                DropdownMenuItem(value: 'artist', child: Text('Artista/Banda')),
               ],
               onChanged: (val) => setState(() => role = val!),
-              decoration: const InputDecoration(labelText: 'Role'),
+              decoration: const InputDecoration(labelText: 'Função'),
             ),
             const SizedBox(height: 32),
             isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: handleRegister,
-                    child: const Text('Register'),
+                    child: const Text('Registar'),
                   ),
           ],
         ),

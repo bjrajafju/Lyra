@@ -203,7 +203,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Invite Member')),
+      appBar: AppBar(title: const Text('Convidar Membro')),
       body: Column(
         children: [
           Padding(
@@ -212,7 +212,7 @@ class _InviteMemberScreenState extends State<InviteMemberScreen> {
               controller: _searchController,
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
-                hintText: 'Search by username...',
+                hintText: 'Pesquisar por username...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(

@@ -104,26 +104,26 @@ class _MainScreenState extends State<MainScreen> {
 
   List<BottomNavigationBarItem> _userItems() {
     return const [
-      BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Discover'),
-      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+      BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Descobrir'),
+      BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Pesquisar'),
       BottomNavigationBarItem(
         icon: Icon(Icons.library_music),
-        label: 'Library',
+        label: 'Biblioteca',
       ),
-      BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+      BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
     ];
   }
 
   List<BottomNavigationBarItem> _bandItems() {
     return const [
-      BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-      BottomNavigationBarItem(icon: Icon(Icons.music_note), label: 'Songs'),
-      BottomNavigationBarItem(icon: Icon(Icons.album), label: 'Albums'),
+      BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Painel'),
+      BottomNavigationBarItem(icon: Icon(Icons.music_note), label: 'Músicas'),
+      BottomNavigationBarItem(icon: Icon(Icons.album), label: 'Álbuns'),
       BottomNavigationBarItem(
         icon: Icon(Icons.dashboard_customize),
         label: 'Layout',
       ),
-      BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Members'),
+      BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Membros'),
     ];
   }
 

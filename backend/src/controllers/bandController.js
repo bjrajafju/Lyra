@@ -126,7 +126,7 @@ export const deleteBand = async (req, res) => {
     const bandId = req.params.id;
     try {
         await query("DELETE FROM bands WHERE id = $1", [bandId]);
-        res.json({ message: "Band deleted successfully" });
+        res.json({ message: "Banda eliminada com sucesso" });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error deleting band" });

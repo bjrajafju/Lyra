@@ -51,7 +51,7 @@ class DynamicWidgetRenderer extends StatelessWidget {
         break;
       case WidgetType.albums:
         if (albums.isEmpty) {
-          content = const Text('No albums available', style: TextStyle(color: AppTheme.textMuted));
+          content = const Text('0 Albums Dispoíveis', style: TextStyle(color: AppTheme.textMuted));
         } else {
           content = SizedBox(
             height: 210,

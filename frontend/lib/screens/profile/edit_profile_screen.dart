@@ -92,16 +92,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Profile updated!')));
+          ).showSnackBar(const SnackBar(content: Text('Perfil atualizado!')));
           Navigator.pop(context);
         }
       } else {
-        throw Exception('Failed to update profile text fields');
+        throw Exception('Falha ao atualizar campos de texto do perfil');
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile: $e')),
+          SnackBar(content: Text('Falha ao atualizar o perfil: $e')),
         );
       }
     }
@@ -114,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: const Text('Editar Perfil')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -178,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             TextButton(
               onPressed: _pickProfilePicture,
               child: const Text(
-                'Change Profile Picture',
+                'Alterar Foto de Perfil',
                 style: TextStyle(
                   color: AppTheme.primary,
                   fontWeight: FontWeight.bold,
@@ -188,12 +188,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 24),
             TextField(
               controller: usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Nome de utilizador'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: bioController,
-              decoration: const InputDecoration(labelText: 'Bio'),
+              decoration: const InputDecoration(labelText: 'Biografia'),
               maxLines: 3,
             ),
             const SizedBox(height: 32),
@@ -204,7 +204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    child: const Text('Save Changes'),
+                    child: const Text('Guardar Alterações'),
                   ),
             const SizedBox(height: 24),
             TextButton(
@@ -212,19 +212,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('Delete Account'),
+                    title: const Text('Eliminar Conta'),
                     content: const Text(
-                      'Are you sure? This action cannot be undone.',
+                      'Tem a certeza? Esta ação não pode ser revertida.',
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
+                        child: const Text('Cancelar'),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         child: const Text(
-                          'Delete',
+                          'Eliminar',
                           style: TextStyle(color: AppTheme.error),
                         ),
                       ),

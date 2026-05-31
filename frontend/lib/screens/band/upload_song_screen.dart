@@ -128,7 +128,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Release')),
+      appBar: AppBar(title: const Text('Lançar Nova Música')),
       body: _isLoadingGenres
           ? const Center(child: CircularProgressIndicator())
           : Form(
@@ -139,7 +139,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'General Info',
+                      'Informação Geral',
                       style: TextStyle(
                         color: AppTheme.primary,
                         fontWeight: FontWeight.bold,
@@ -151,7 +151,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     TextFormField(
                       controller: titleController,
                       decoration: const InputDecoration(
-                        labelText: 'Track Title',
+                        labelText: 'Título da Música',
                         prefixIcon: Icon(Icons.music_note_outlined),
                       ),
                       validator: (v) =>
@@ -161,7 +161,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     TextFormField(
                       controller: tagsController,
                       decoration: const InputDecoration(
-                        labelText: 'Tags (comma separated)',
+                        labelText: 'Tags (separar por vírgula)',
                         prefixIcon: Icon(Icons.tag_rounded),
                       ),
                     ),
@@ -217,7 +217,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     const SizedBox(height: 24),
 
                     Text(
-                      'Album (Optional)',
+                      'Album (Opcional)',
                       style: TextStyle(
                         color: AppTheme.primary,
                         fontWeight: FontWeight.bold,
@@ -231,7 +231,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                       items: [
                         const DropdownMenuItem<int?>(
                           value: null,
-                          child: Text('No Album'),
+                          child: Text('Sem Album'),
                         ),
                         ..._albums.map(
                           (a) => DropdownMenuItem<int?>(
@@ -259,10 +259,10 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     const SizedBox(height: 16),
                     _FileSelector(
                       label: audioFile == null
-                          ? 'Select Audio (MP3/WAV)'
+                          ? 'Selecionar Audio (MP3/WAV)'
                           : audioFile!.name,
                       subtitle: audioFile == null
-                          ? 'Up to 50MB'
+                          ? 'Até 50MB'
                           : '${(audioFile!.size / 1024 / 1024).toStringAsFixed(2)} MB',
                       icon: Icons.audiotrack_rounded,
                       onTap: pickAudio,
@@ -271,11 +271,11 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                     const SizedBox(height: 12),
                     _FileSelector(
                       label: coverFile == null
-                          ? 'Artwork (Optional)'
+                          ? 'Imagem (Opcional)'
                           : coverFile!.name,
                       subtitle: coverFile == null
-                          ? 'JPEG or PNG'
-                          : 'Ready to upload',
+                          ? 'JPEG ou PNG'
+                          : 'Pronto Para Lançamento',
                       icon: Icons.image_outlined,
                       onTap: pickCover,
                       isSelected: coverFile != null,
@@ -289,7 +289,7 @@ class _UploadSongScreenState extends State<UploadSongScreen> {
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size.fromHeight(60),
                             ),
-                            child: const Text('UPLOAD TRACK'),
+                            child: const Text('LANÇAR FAIXA'),
                           ),
                     const SizedBox(height: 40),
                   ],

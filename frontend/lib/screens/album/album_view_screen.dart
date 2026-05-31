@@ -44,7 +44,7 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
     if (isLoading)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     if (album == null)
-      return const Scaffold(body: Center(child: Text('Album not found')));
+      return const Scaffold(body: Center(child: Text('Álbum não encontrado')));
 
     return Scaffold(
       body: CustomScrollView(
@@ -133,7 +133,7 @@ class _AlbumViewScreenState extends State<AlbumViewScreen> {
                             );
                           },
                           icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                          label: const Text('Play All'),
+                          label: const Text('Reproduzir tudo'),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,

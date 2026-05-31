@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!right && mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Login failed')));
+      ).showSnackBar(const SnackBar(content: Text('Falha ao iniciar sessão')));
     }
   }
 
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'E-mail',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: passwordController,
                 decoration: const InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Palavra-passe',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
@@ -75,12 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
                       ),
-                      child: const Text('Login'),
+                      child: const Text('Iniciar Sessão'),
                     ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text("Don't have an account? Register"),
+                child: const Text("Não tens uma conta? Regista-te"),
               ),
             ],
           ),

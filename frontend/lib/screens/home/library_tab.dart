@@ -66,8 +66,8 @@ class _LibraryTabState extends State<LibraryTab>
           labelColor: AppTheme.primary,
           unselectedLabelColor: AppTheme.textMuted,
           tabs: const [
-            Tab(text: 'Favorites'),
-            Tab(text: 'Playlists'),
+            Tab(text: 'Favoritos'),
+            Tab(text: 'Listas'),
           ],
         ),
         Expanded(
@@ -89,12 +89,12 @@ class _LibraryTabState extends State<LibraryTab>
                           ),
                           SizedBox(height: 12),
                           Text(
-                            'No favorites yet',
+                            'Ainda não há favoritos',
                             style: TextStyle(color: AppTheme.textMuted),
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Save songs you love!',
+                            'Guarde as músicas que ama!',
                             style: TextStyle(
                               color: AppTheme.textMuted,
                               fontSize: 13,
@@ -139,7 +139,7 @@ class _LibraryTabState extends State<LibraryTab>
                                   if (created == true) _loadData();
                                 },
                                 icon: const Icon(Icons.add, size: 18),
-                                label: const Text('New'),
+                                label: const Text('Novo'),
                               ),
                             ],
                           ),
@@ -157,7 +157,7 @@ class _LibraryTabState extends State<LibraryTab>
                                       ),
                                       SizedBox(height: 12),
                                       Text(
-                                        'No playlists yet',
+                                        'Ainda não há listas',
                                         style: TextStyle(
                                           color: AppTheme.textMuted,
                                         ),

@@ -78,7 +78,7 @@ class _SearchTabState extends State<SearchTab> {
             controller: _searchController,
             onChanged: _onSearchChanged,
             decoration: InputDecoration(
-              hintText: 'Search songs, artists, playlists...',
+              hintText: 'Procurar músicas, artistas, playlists...',
               prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -107,7 +107,7 @@ class _SearchTabState extends State<SearchTab> {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Search for music',
+                        'Procurar música',
                         style: TextStyle(
                           color: AppTheme.textMuted,
                           fontSize: 16,
@@ -123,7 +123,7 @@ class _SearchTabState extends State<SearchTab> {
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                         child: Text(
-                          'Artists',
+                          'Artistas',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -156,7 +156,7 @@ class _SearchTabState extends State<SearchTab> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                         child: Text(
-                          'Songs (${songResults.length})',
+                          'Músicas (${songResults.length})',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class _SearchTabState extends State<SearchTab> {
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
                         child: Text(
-                          'Playlists',
+                          'Listas de reprodução',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -208,7 +208,7 @@ class _SearchTabState extends State<SearchTab> {
                               ),
                               SizedBox(height: 12),
                               Text(
-                                'No results found',
+                                'Nenhum resultado encontrado',
                                 style: TextStyle(color: AppTheme.textMuted),
                               ),
                             ],

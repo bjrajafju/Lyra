@@ -159,7 +159,7 @@ class _ManageMembersScreenState extends State<ManageMembersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
+        title: const Text('Membros'),
         actions: [
           if (canInvite)
             IconButton(

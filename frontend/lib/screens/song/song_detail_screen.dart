@@ -255,7 +255,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
 
                   // Comments
                   Text(
-                    'Comments (${comments.length})',
+                    'Comentários (${comments.length})',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
